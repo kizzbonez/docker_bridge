@@ -19,15 +19,22 @@ export const CONSOLE_LINKS: NavLink[] = [
   { href: '/docs/', label: 'Docs', always: true },
 ];
 
-/** The showcase: the simulated walkthrough. */
-export const SHOWCASE_LINKS: NavLink[] = [
+/** The showcase's own sections: all anyone needs to find their way around it. */
+export const SHOWCASE_SECTIONS: NavLink[] = [
   { href: '#simulator', label: 'Simulator' },
   { href: '#economy', label: 'Economy' },
   { href: '#tools', label: 'Tools' },
   { href: '#setup', label: 'Setup' },
+];
+
+/** Added on the showcase for someone signed in: the pages behind the wall. */
+export const MEMBER_LINKS: NavLink[] = [
   { href: '/docs/', label: 'Docs' },
   { href: '/', label: 'Console', always: true },
 ];
+
+/** Added on the showcase for someone without a session: the one page they can go to. */
+export const VISITOR_LINKS: NavLink[] = [{ href: '/login/', label: 'Sign in', always: true }];
 
 /** Documentation and account pages. */
 export const DOCS_LINKS: NavLink[] = [

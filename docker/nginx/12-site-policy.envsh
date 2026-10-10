@@ -1,5 +1,22 @@
-# Sourced by the nginx entrypoint before it renders the templates.
+# Sourced by the nginx entrypoint before it renders the templates. It checks
+# the two settings that decide what the outside world may do with this site,
+# and stops the container rather than guess at a value it does not recognise.
 #
+# PUBLIC_SHOWCASE says whether the simulated showcase is served to visitors
+# without a session: true or false (the default). Nothing else is ever public:
+# the console, its API, the documentation and the account page stay behind
+# sign-in either way.
+
+case "$(printf '%s' "${PUBLIC_SHOWCASE:-false}" | tr 'A-Z' 'a-z')" in
+  true | 1 | yes | on) PUBLIC_SHOWCASE_FLAG=1 ;;
+  false | 0 | no | off | "") PUBLIC_SHOWCASE_FLAG=0 ;;
+  *)
+    echo "PUBLIC_SHOWCASE: \"${PUBLIC_SHOWCASE}\" is not allowed. Use true or false." >&2
+    exit 1
+    ;;
+esac
+export PUBLIC_SHOWCASE_FLAG
+
 # FRAME_ANCESTORS says who may show this site inside a frame:
 #
 #   none                              nobody (the default)

@@ -25,6 +25,7 @@ export const ENV_VARS: string[][] = [
 ];
 
 /** Set in .env next to docker-compose.yml. */
+export const PUBLIC_SHOWCASE_EXAMPLE = 'PUBLIC_SHOWCASE=true';
 export const FRAMING_EXAMPLE = 'FRAME_ANCESTORS=https://portfolio.example.com';
 
 /** Set in .env next to docker-compose.yml; they configure the console container. */
@@ -64,10 +65,10 @@ export const NPM_SCRIPTS: string[][] = [
 
 export const PROJECT_TREE = `docker_bridge/
 ├─ index.html                 live console entry       ┐
-├─ showcase/index.html        simulated showcase entry │
 ├─ docs/index.html            documentation entry      ├ protected
 ├─ account/index.html         account & security entry ┘
-├─ portal/                    sign-in + onboarding (the only public bundle)
+├─ showcase/                  the simulated showcase (its own bundle; public if you choose)
+├─ portal/                    sign-in + onboarding (its own bundle; always public)
 ├─ auth/                      sign-in service: Node, no dependencies
 ├─ bridge/                    the MCP server: core (shared), docker, tools, mcp, activity
 ├─ console/                   the console's API: the bridge's tools over HTTP

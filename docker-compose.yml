@@ -37,6 +37,9 @@ services:
       auth:
         condition: service_healthy
     environment:
+      # true: the simulated showcase is served to visitors without a session,
+      # and is what they get at "/". Everything else stays behind sign-in.
+      PUBLIC_SHOWCASE: ${PUBLIC_SHOWCASE:-false}
       # Who may show this site inside a frame. none: nobody. Otherwise "self"
       # and/or https origins separated by spaces, e.g. https://portfolio.example.com
       FRAME_ANCESTORS: ${FRAME_ANCESTORS:-none}

@@ -26,12 +26,18 @@ async function signInWithRecoveryCode(page: Page, path = '/login/'): Promise<voi
 
 test.describe('the sign-in wall', () => {
   test('sends anonymous page requests to sign-in and hides every protected file', async ({ request }) => {
-    for (const path of ['/', '/docs/', '/account/', '/docs/index.html']) {
+    for (const path of ['/docs/', '/account/', '/docs/index.html']) {
       const response = await request.get(path, { maxRedirects: 0 });
       expect(response.status(), path).toBe(302);
       expect(response.headers()['location'], path).toBe(`/login/?next=${path}`);
       expect(response.headers()['cache-control']).toBe('no-store');
     }
+    // This stack has the showcase public: the home page hands a visitor to it,
+    // never to the console that lives at the same address.
+    const home = await request.get('/', { maxRedirects: 0 });
+    expect(home.status()).toBe(302);
+    expect(home.headers()['location']).toBe('/showcase/');
+    expect(home.headers()['cache-control']).toBe('no-store');
     // Real files and scanner bait alike: a 404, never a redirect to a 200 page.
     const files = ['/brand/logo-mark.svg', '/screenshots/dashboard-hero.png', '/assets/dashboard.js', '/backup.sql', '/settings.py', '/docker-compose.yml', '/wp-login.php'];
     for (const path of files) {
@@ -134,8 +140,12 @@ test.describe('signing in', () => {
     await signInWithRecoveryCode(page);
     await page.getByTestId('session-menu').getByRole('button', { name: 'Sign out' }).click();
     await expect(page).toHaveURL(/\/login\/$/);
+    await page.goto('/docs/');
+    await expect(page).toHaveURL(/\/login\/\?next=\/docs\/$/);
+    // The home page is the console only for someone signed in.
     await page.goto('/');
-    await expect(page).toHaveURL(/\/login\/\?next=\/$/);
+    await expect(page).toHaveURL(/\/showcase\/$/);
+    await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 });
 

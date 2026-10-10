@@ -17,6 +17,12 @@ test.describe('first-run onboarding', () => {
     await expect(page.getByText('docker compose logs auth')).toBeVisible();
   });
 
+  test('even with a public showcase, the first visitor is asked to claim the install', async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/setup\/$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Welcome. Let’s secure this install');
+  });
+
   test('refuses a wrong setup token', async ({ page }) => {
     await page.goto('/setup/');
     await page.getByLabel('Setup token').fill('WRONG-WRONG-WRONG-WRONG');

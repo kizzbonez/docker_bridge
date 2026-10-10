@@ -16,17 +16,19 @@ targets:
     source_path: /repos/docker_bridge
     semgrep_config: auto
 
-  # The running site as an anonymous visitor sees it: the sign-in wall.
-  # Everything else must answer with a redirect to /login/.
+  # The running site as an anonymous visitor sees it: the sign-in wall, and
+  # the showcase if PUBLIC_SHOWCASE is on. Everything listed under
+  # sensitive_paths must still be refused.
   dockerbridge-web:
     kind: web
     base_url: http://host.docker.internal:8742
     sensitive_paths:
-      - /
       - /docs/
       - /account/
       - /auth/account
       - /assets/
+      - /api/engine
+      - /screenshots/console-stacks.png
     e2e_paths:
       - /login/
     e2e_wait: networkidle

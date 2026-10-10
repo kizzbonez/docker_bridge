@@ -3,6 +3,8 @@ export interface StackOptions {
   port: number;
   /** The folder whose activity log the stack's console should show. */
   activityDir: string;
+  /** Serve the simulated showcase without a session. Off by default. */
+  publicShowcase?: boolean;
 }
 
 export function startStack(options: StackOptions): { baseUrl: string; setupToken: string };

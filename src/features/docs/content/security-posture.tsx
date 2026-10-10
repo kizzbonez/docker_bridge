@@ -1,4 +1,4 @@
-import { FRAMING_EXAMPLE, SECURITY_HEADERS } from '../model/facts';
+import { FRAMING_EXAMPLE, PUBLIC_SHOWCASE_EXAMPLE, SECURITY_HEADERS } from '../model/facts';
 import { CodeSample } from '../ui/code-sample';
 import { DataTable } from '../ui/data-table';
 import { DocSection } from '../ui/doc-section';
@@ -23,7 +23,10 @@ const CONTAINER = [
 ];
 
 const FRONTEND = [
-  <>The sign-in portal is a separate bundle. No dashboard code, image or document is reachable without a session.</>,
+  <>
+    The sign-in portal and the showcase are each a separate bundle. No code, image or document of the console, the
+    docs or the account page is reachable without a session.
+  </>,
   <>No inline scripts or styles, so the Content-Security-Policy needs no unsafe-inline or nonce.</>,
   <>Fonts, images and data are self-hosted. The page makes no third-party requests.</>,
   <>
@@ -37,6 +40,14 @@ export function SecurityPosture() {
     <DocSection id="security" lead="How the site is locked down, and what is checked on every scan.">
       <H3>Response headers</H3>
       <DataTable caption="Security response headers" columns={['Header', 'Value', 'Effect']} rows={SECURITY_HEADERS} />
+      <H3>What a visitor can see</H3>
+      <P>
+        By default, nothing: every page asks for sign-in. The one thing you can open up is the showcase, which holds
+        made-up containers and logs and no data of yours. With the setting below a visitor who opens the site is
+        shown the showcase, with a link to sign in; you still land on the console. The console, its API, this
+        documentation and the account page stay behind sign-in either way.
+      </P>
+      <CodeSample title=".env" text={PUBLIC_SHOWCASE_EXAMPLE} />
       <H3>Showing the site inside another page</H3>
       <P>
         By default no page may put this site in a frame, which is what stops another site from laying its own
@@ -46,8 +57,8 @@ export function SecurityPosture() {
       </P>
       <CodeSample title=".env" text={FRAMING_EXAMPLE} />
       <P>
-        Visitors to the framing page see the sign-in page, like anyone else without an account. Name only sites you
-        control: if you are signed in and the framing site is on the same domain, it shows your live console inside
+        Visitors to the framing page see what any visitor sees: the sign-in page, or the showcase if it is public.
+        Name only sites you control: if you are signed in and the framing site is on the same domain, it shows your live console inside
         its page.
       </P>
       <H3>Container</H3>

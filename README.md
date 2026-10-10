@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-0.4.0-06b6d4">
-  <img alt="tests" src="https://img.shields.io/badge/tests-389%20unit%20%C2%B7%20160%20e2e-10b981">
+  <img alt="version" src="https://img.shields.io/badge/version-0.5.0-06b6d4">
+  <img alt="tests" src="https://img.shields.io/badge/tests-393%20unit%20%C2%B7%20177%20e2e-10b981">
   <img alt="clients" src="https://img.shields.io/badge/works%20with-any%20MCP%20client-38bdf8">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-10b981">
   <img alt="auth" src="https://img.shields.io/badge/sign--in-password%20%2B%20TOTP-38bdf8">
@@ -38,7 +38,8 @@ This repository holds three things:
 - **The live console** — real. The page you land on after signing in: your engine, read through the same three
   tools, plus a record of what your agents asked for.
 - **The showcase** — simulated. A guided walkthrough with fixture containers and logs, run through the server's own
-  log pipeline and exec policy in the browser. It says so on the page.
+  log pipeline and exec policy in the browser. It says so on the page, and it is the one part you can choose to
+  make public.
 
 ## The MCP server
 
@@ -196,7 +197,18 @@ docker compose up -d --build --scale console=0
 | `CONSOLE_EXEC` | `true` | `false`: no command can be run from the browser at all |
 | `DOCKER_BRIDGE_PROJECTS` | unset | Limit the console to the compose projects you name |
 | `DOCKER_SOCKET_GID` | `0` | The group that owns the socket. `0` suits Docker Desktop; on Linux use the `docker` group's gid |
+| `PUBLIC_SHOWCASE` | `false` | `true`: the simulated showcase is served without sign-in, and is what a visitor gets at `/`. Everything else stays behind sign-in |
 | `FRAME_ANCESTORS` | `none` | Who may show the site in an `<iframe>`: `none`, or `self` and https origins separated by spaces, e.g. `https://portfolio.example.com`. Wildcards for everyone and http origins are refused |
+
+### A public showcase
+
+By default every page asks for sign-in. Set `PUBLIC_SHOWCASE=true` in `.env` and the simulated showcase becomes
+the public face of the site: a visitor who opens `/` is shown `/showcase/`, with a "Sign in" link, while you still
+land on the console after signing in. The showcase is its own bundle holding made-up containers and logs only.
+The console, its API, the documentation and the account page stay behind sign-in either way, and a new install
+still sends its first visitor to the setup wizard.
+
+### Publishing
 
 The port is bound to `127.0.0.1`, so the site is reachable from this machine only. To publish it, keep that bind
 and point a tunnel at it: with Cloudflare Tunnel, add a public hostname whose service is
@@ -211,10 +223,10 @@ diagnostics, so consider a second gate (such as Cloudflare Access) in front.
 | | |
 |---|---|
 | **Live console** (`/`) | The engine on this machine: stacks, logs, guarded exec and agent activity. Real data. |
-| **Showcase** (`/showcase/`) | A simulated walkthrough: an agent debugging a broken stack, the token economy of filtered logs, a tool playground, and the setup guide. |
+| **Showcase** (`/showcase/`) | A simulated walkthrough: an agent debugging a broken stack, the token economy of filtered logs, a tool playground, and the setup guide. Can be made public. |
 | **Documentation** (`/docs/`) | Setup for any MCP client, tool tables, sample payloads and guardrail rules, rendered from the same schemas and policy the server runs, so they cannot drift. |
 | **Account & security** (`/account/`) | Sessions, password and recovery-code rotation, recent security activity. |
-| **Sign-in wall** | Every page, asset and API call sits behind password + authenticator sign-in. A first-run wizard creates the account. |
+| **Sign-in wall** | Every page, asset and API call sits behind password + authenticator sign-in, except the showcase if you make it public. A first-run wizard creates the account. |
 
 <table>
   <tr>
@@ -247,13 +259,14 @@ diagnostics, so consider a second gate (such as Cloudflare Access) in front.
   </tr>
   <tr>
     <td align="center"><sub>Documentation generated from the tool schemas</sub></td>
-    <td align="center"><sub>The sign-in portal: the only public page</sub></td>
+    <td align="center"><sub>The sign-in portal: public, like the showcase if you choose</sub></td>
   </tr>
 </table>
 
 ## Sign-in and onboarding
 
-Nothing is public. A fresh install has no account, so the first visit opens a four-step wizard:
+Nothing is public unless you [make the showcase public](#a-public-showcase). A fresh install has no account, so
+the first visit opens a four-step wizard:
 
 1. **Verify** — paste the one-time setup token from `docker compose logs auth`. It proves you control the server, so
    nobody else can claim a new install.
@@ -287,9 +300,10 @@ npm run auth:reset     # deletes the account; a new setup token is printed on re
 flowchart LR
   B([Browser]) -->|127.0.0.1:8742| N[nginx<br/>unprivileged, read-only]
   N -->|"auth_request: is there a session?"| A[auth service<br/>Node, zero dependencies]
-  N -->|only with a session| S[(console · showcase · docs · account<br/>static files)]
+  N -->|only with a session| S[(console · docs · account<br/>static files)]
   N -->|"/api/, only with a session"| C[console service<br/>the bridge over HTTP]
   N -->|always| P[(sign-in portal<br/>separate bundle)]
+  N -->|"always, if PUBLIC_SHOWCASE"| W[(showcase<br/>separate bundle, simulated)]
   C -->|checks the session again| A
   C --- D[(Docker socket)]
   A --- V[(volume<br/>account.json)]
@@ -303,17 +317,18 @@ flowchart LR
   dependencies, publish no port, and sit on an internal network with no route to the internet.
 - **One socket holder.** Only `console` is given the Docker socket. The MCP server itself runs on the host, started
   by your client, and writes a record of its calls that the console reads through a read-only mount.
-- **Two bundles.** The sign-in portal is built separately, so no page, image or document is reachable without a
-  session.
+- **Three bundles.** The sign-in portal and the showcase are each built separately from the rest. What can be
+  served without a session is exactly those two folders, so no page, image or line of code of the console, the
+  docs or the account page is reachable without one.
 - **One source of truth.** The tool schemas, exec policy, regex guard and log pipeline live in `bridge/core`. The
   MCP server and the console enforce them; the showcase and the docs import the same files, so what the site shows
   is what the server does.
 
 ```
 docker_bridge/
-├─ index.html                      the live console            ┐
-├─ showcase/ · docs/ · account/    showcase, docs, account     ┘ protected pages
-├─ portal/                         sign-in + onboarding (the only public bundle)
+├─ index.html · docs/ · account/   the live console, docs, account: protected pages
+├─ showcase/                       the simulated showcase (its own bundle; public if you choose)
+├─ portal/                         sign-in + onboarding (its own bundle; always public)
 ├─ bridge/                         the MCP server
 │  ├─ core/                        tool schemas, exec policy, log pipeline (shared with the site)
 │  ├─ docker/                      Engine API client over socket or named pipe
@@ -344,8 +359,8 @@ npm run console        # second terminal: live data for the console page
 | Script | What it does |
 |---|---|
 | `npm run verify` | Typecheck, lint with size budgets, unit tests and a production build |
-| `npm run test` | Vitest: 389 unit and component tests, including the three services over real HTTP and stdio |
-| `npm run e2e` | Starts a throwaway stack, walks through onboarding, then runs 160 browser tests |
+| `npm run test` | Vitest: 393 unit and component tests, including the three services over real HTTP and stdio |
+| `npm run e2e` | Starts a throwaway stack, walks through onboarding, then runs 177 browser tests |
 | `npm run bridge` | The MCP server on stdio, as a client would launch it |
 | `npm run console` | The console API from source, for the dev server. No sign-in: never publish its port |
 | `npm run screenshots` | Regenerates the images above on a throwaway stack |

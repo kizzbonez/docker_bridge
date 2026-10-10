@@ -2,6 +2,7 @@
 #
 # Three images come out of this file; docker-compose.yml selects them by target:
 #   web      unprivileged nginx serving the static site behind the sign-in wall
+#            (and, if you choose, the simulated showcase in front of it)
 #   auth     the sign-in service
 #   console  the live console's API: the bridge's tools over HTTP
 #
@@ -32,14 +33,16 @@ RUN apk upgrade --no-cache
 COPY docker/nginx/security-headers.conf docker/nginx/auth-proxy.conf /etc/nginx/snippets/
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# Who may frame the site is a setting. The entrypoint checks it, then renders
-# one small file from a template into /tmp, the container's only writable path.
-# Only the two variables that file needs are ever substituted.
-COPY --chmod=755 docker/nginx/12-frame-ancestors.envsh /docker-entrypoint.d/
-COPY docker/nginx/frame-policy.conf.template /etc/nginx/templates/
-ENV FRAME_ANCESTORS=none \
+# Whether the showcase is public, and who may frame the site, are settings.
+# The entrypoint checks them, then renders one small file from a template
+# into /tmp, the container's only writable path. Only the three variables that
+# file needs are ever substituted.
+COPY --chmod=755 docker/nginx/12-site-policy.envsh /docker-entrypoint.d/
+COPY docker/nginx/site-policy.conf.template /etc/nginx/templates/
+ENV PUBLIC_SHOWCASE=false \
+    FRAME_ANCESTORS=none \
     NGINX_ENVSUBST_OUTPUT_DIR=/tmp \
-    NGINX_ENVSUBST_FILTER="^(FRAME_ANCESTORS_CSP|X_FRAME_OPTIONS)$"
+    NGINX_ENVSUBST_FILTER="^(PUBLIC_SHOWCASE_FLAG|FRAME_ANCESTORS_CSP|X_FRAME_OPTIONS)$"
 COPY --from=build /app/dist /usr/share/nginx/html
 
 USER 101:101

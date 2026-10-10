@@ -21,6 +21,8 @@ ls:
   portal:
     .dir: kebab-case
     .tsx: kebab-case
+  showcase:
+    .tsx: kebab-case
   tests:
     .dir: kebab-case
     .ts: kebab-case

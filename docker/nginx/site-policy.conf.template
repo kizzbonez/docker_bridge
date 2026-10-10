@@ -1,0 +1,19 @@
+# Rendered to /tmp/site-policy.conf when the container starts, from the
+# PUBLIC_SHOWCASE and FRAME_ANCESTORS settings, after 12-site-policy.envsh has
+# checked them.
+
+# 1 when the showcase is served without a session; 0 when it sits behind
+# sign-in like everything else.
+map "" $public_showcase {
+    default "${PUBLIC_SHOWCASE_FLAG}";
+}
+
+# Who may show this site inside a frame. Used by security-headers.conf.
+map "" $frame_ancestors {
+    default "${FRAME_ANCESTORS_CSP}";
+}
+
+# The older header for the same thing. Empty means "do not send it".
+map "" $x_frame_options {
+    default "${X_FRAME_OPTIONS}";
+}

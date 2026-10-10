@@ -1,6 +1,6 @@
 # Security scan summary
 
-**Scanned:** 2026-10-10 · **Version:** 0.4.0 · **Tooling:** local secsuite stack, plus `npm audit`
+**Scanned:** 2026-10-10 · **Version:** 0.5.0 · **Tooling:** local secsuite stack, plus `npm audit`
 
 Every profile below passes the gate (no finding at HIGH or above) after the fixes described here. All of them
 were run again for 0.3.0, which added the live console and its service. The scanners found one new notice, a
@@ -71,6 +71,16 @@ What remains, and is accepted:
 How to narrow it further: set `DOCKER_BRIDGE_PROJECTS` so the console sees only the projects you name, set
 `CONSOLE_EXEC=false` so the browser can read but never run, put a second gate in front if the site is published,
 or start the stack with `--scale console=0` and no socket is mounted at all.
+
+## 0.5.0: the showcase can be made public
+
+Every page asks for sign-in by default, and that has not changed. `PUBLIC_SHOWCASE=true` opens exactly one
+thing: the simulated showcase, which holds made-up containers and logs. To keep that boundary a matter of
+folders rather than of care, the showcase is built as its own bundle; nginx serves `/showcase/` without a
+session and nothing else. The browser suite checks, as a visitor, that the docs, the account page, the protected
+assets and screenshots are still refused, that the console API still answers 401, and that the public bundle does
+not contain the console's API client. The default is checked with a second container: with the setting off the
+showcase and its files are behind sign-in like everything else.
 
 ## 0.4.0: framing can be allowed for named sites
 

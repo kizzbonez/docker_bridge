@@ -4,6 +4,24 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-10-10
+
+### Added
+
+- `PUBLIC_SHOWCASE`: serve the simulated showcase to visitors without a session. Off by default. When on, a
+  visitor who opens `/` is shown `/showcase/` with a "Sign in" link, while a signed-in user still gets the console
+  there. A new install still sends its first visitor to the setup wizard.
+
+### Changed
+
+- The showcase is now built as its own bundle, like the sign-in portal, so it can be served publicly without any
+  code of the console, the docs or the account page being reachable. Its logo and social image are served under
+  `/showcase/brand/`.
+- On the showcase, a visitor is shown no links that would only bounce them to sign-in: the setup guide and the
+  footer point to the repository instead.
+- Tests: 393 unit and component tests and 177 end-to-end tests. The browser suite now runs with the showcase
+  public and visits it as a visitor; the default, private, is checked with a second container.
+
 ## [0.4.0] - 2026-10-10
 
 ### Added
@@ -134,6 +152,7 @@ Hardening applied before release, after scanning with secsuite (see `security/re
 - An anonymous request for anything that looks like a file is answered with 404 rather than a redirect to the
   sign-in page; only page requests are sent to sign-in.
 
+[0.5.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.0...v0.3.1

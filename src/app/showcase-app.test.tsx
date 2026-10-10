@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { pickActive } from '@/features/docs/hooks/use-scroll-spy';
@@ -7,9 +7,68 @@ import { describeConstraints } from '@/features/docs/ui/param-table';
 import { MCP_CONFIG_JSON } from '@/features/setup/model/config-snippets';
 import { TOOL_NAMES } from '@bridge/core/tool-specs';
 import { useCountUp } from '@/shared/hooks/use-count-up';
+import { navigate } from '@/features/auth/model/navigation';
+import { mockFetch } from '@/test/mock-fetch';
 import { setReducedMotion } from '@/test/setup';
 import { ShowcaseApp } from './showcase-app';
 import { DocsApp } from './docs-app';
+
+vi.mock('@/features/auth/model/navigation', async (original) => ({
+  ...(await original<typeof import('@/features/auth/model/navigation')>()),
+  navigate: vi.fn(),
+}));
+
+const status = (authenticated: boolean, setupRequired = false) =>
+  mockFetch({ 'GET /auth/status': { body: { setupRequired, authenticated, user: authenticated ? 'operator' : null } } });
+
+describe('ShowcaseApp, for whoever is looking', () => {
+  const primary = () => within(screen.getByRole('navigation', { name: 'Primary' }));
+  const footer = () => within(screen.getByRole('navigation', { name: 'Footer' }));
+
+  it('gives a visitor no link that would only bounce them to sign-in', async () => {
+    status(false);
+    render(<ShowcaseApp />);
+    expect(await primary().findByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login/');
+    expect(primary().queryByRole('link', { name: 'Docs' })).toBeNull();
+    expect(primary().queryByRole('link', { name: 'Console' })).toBeNull();
+    expect(screen.queryByTestId('session-menu')).toBeNull();
+
+    const guide = screen.getByRole('link', { name: /Read the full setup guide on GitHub/ });
+    expect(guide).toHaveAttribute('href', 'https://github.com/kizzbonez/docker_bridge#connect-an-mcp-client');
+    expect(guide).toHaveAttribute('target', '_blank');
+    expect(guide).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(footer().getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+      'https://github.com/kizzbonez/docker_bridge#readme',
+      'https://github.com/kizzbonez/docker_bridge',
+      '/login/',
+    ]);
+  });
+
+  it('gives someone signed in the way back to the console and the docs', async () => {
+    status(true);
+    render(<ShowcaseApp />);
+    expect(await primary().findByRole('link', { name: 'Console' })).toHaveAttribute('href', '/');
+    expect(primary().getByRole('link', { name: 'Docs' })).toHaveAttribute('href', '/docs/');
+    expect(primary().queryByRole('link', { name: 'Sign in' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Read the full setup guide →' })).toHaveAttribute('href', '/docs/#quick-start');
+    expect(footer().getByRole('link', { name: 'Account & security' })).toBeInTheDocument();
+  });
+
+  it('shows the simulation to both, and says it is one', async () => {
+    status(false);
+    render(<ShowcaseApp />);
+    await primary().findByRole('link', { name: 'Sign in' });
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Autonomous Container Diagnostics for Agentic Workflows');
+    expect(within(screen.getByRole('region', { name: 'System status' })).getByText('simulated data')).toBeInTheDocument();
+    expect(primary().getAllByRole('link').map((link) => link.textContent)).toEqual(['Simulator', 'Economy', 'Tools', 'Setup', 'Sign in']);
+  });
+
+  it('sends the first person to open a new install to the setup wizard, not to a demo', async () => {
+    status(false, true);
+    render(<ShowcaseApp />);
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/setup/'));
+  });
+});
 
 describe('ShowcaseApp', () => {
   it('renders the status bar, hero and every section', () => {

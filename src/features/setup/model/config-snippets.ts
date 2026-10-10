@@ -1,7 +1,9 @@
 import type { CodeLanguage } from '@/shared/ui/code-text';
 
 export const SERVER_NAME = 'docker-debug-bridge';
-export const REPO_URL = 'https://github.com/kizzbonez/docker_bridge.git';
+/** The repository's page: public, so it is where a visitor without a session is sent to read more. */
+export const REPO_HOME = 'https://github.com/kizzbonez/docker_bridge';
+export const REPO_URL = `${REPO_HOME}.git`;
 /** Stands in for wherever the repository was cloned. */
 export const REPO_PATH = '/path/to/docker_bridge';
 /** Placeholder: the name the server would have if you published it to npm. */

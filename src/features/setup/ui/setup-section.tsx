@@ -1,7 +1,7 @@
 import { memo, type ReactNode } from 'react';
 import { LinkButton } from '@/shared/ui/button';
 import { Section } from '@/shared/ui/section';
-import { CLONE_COMMAND, REPO_PATH } from '../model/config-snippets';
+import { CLONE_COMMAND, REPO_HOME, REPO_PATH } from '../model/config-snippets';
 import { ConfigCard } from './config-card';
 
 const CODE = 'rounded bg-carbon-700/70 px-1.5 py-0.5 font-mono text-[0.85em] break-words text-cyan-300';
@@ -26,7 +26,26 @@ function Step({ n, title, children }: StepProps) {
   );
 }
 
-export const SetupSection = memo(function SetupSection() {
+/**
+ * The full guide lives in the documentation, which sits behind sign-in. A
+ * visitor is sent to the same guide in the repository's README instead.
+ */
+function GuideLink({ visitor }: { visitor: boolean }) {
+  if (!visitor) {
+    return (
+      <LinkButton href="/docs/#quick-start" className="text-xs">
+        Read the full setup guide →
+      </LinkButton>
+    );
+  }
+  return (
+    <LinkButton href={`${REPO_HOME}#connect-an-mcp-client`} target="_blank" rel="noopener noreferrer" className="text-xs">
+      Read the full setup guide on GitHub ↗<span className="sr-only"> (opens in a new tab)</span>
+    </LinkButton>
+  );
+}
+
+export const SetupSection = memo(function SetupSection({ visitor = false }: { visitor?: boolean }) {
   return (
     <Section
       id="setup"
@@ -55,9 +74,7 @@ export const SetupSection = memo(function SetupSection() {
             since the last deploy — find out why.”
           </Step>
           <li>
-            <LinkButton href="/docs/#quick-start" className="text-xs">
-              Read the full setup guide →
-            </LinkButton>
+            <GuideLink visitor={visitor} />
           </li>
         </ol>
         <ConfigCard />

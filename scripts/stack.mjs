@@ -21,9 +21,10 @@ export function stopStack(project) {
 
 /**
  * Builds and starts the stack, waiting until every container is healthy.
- * `activityDir` is the folder whose activity log the console should show.
+ * `activityDir` is the folder whose activity log the console should show;
+ * `publicShowcase` serves the simulated showcase without a session.
  */
-export function startStack({ project, port, activityDir }) {
+export function startStack({ project, port, activityDir, publicShowcase = false }) {
   const setupToken = (randomBytes(10).toString('hex').match(/.{5}/g) ?? []).join('-').toUpperCase();
   const env = {
     ...process.env,
@@ -36,6 +37,7 @@ export function startStack({ project, port, activityDir }) {
     FRAME_ANCESTORS: 'none',
     READ_ONLY_MODE: 'true',
     CONSOLE_EXEC: 'true',
+    PUBLIC_SHOWCASE: publicShowcase ? 'true' : 'false',
   };
   compose(project, env, 'down', '-v', '--remove-orphans');
   compose(project, env, 'up', '-d', '--build', '--wait');
