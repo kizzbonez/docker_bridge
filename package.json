@@ -1,6 +1,6 @@
 {
   "name": "dockerbridge-dashboard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "DockerBridge MCP: a Model Context Protocol server for debugging containers with Claude Code, plus its dashboard and docs.",
   "type": "module",
@@ -21,6 +21,7 @@
     "e2e": "playwright test",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build",
     "screenshots": "node scripts/screenshots.mjs",
+    "load-check": "node scripts/load-check.mjs",
     "brand": "node scripts/render-brand.mjs",
     "auth:status": "docker compose exec auth node auth/cli.ts status",
     "auth:reset": "docker compose exec auth node auth/cli.ts reset && docker compose restart auth"

@@ -40,3 +40,7 @@ targets:
   dockerbridge-image-auth:
     kind: image
     image: dockerbridge-auth:local
+
+  dockerbridge-image-console:
+    kind: image
+    image: dockerbridge-console:local

@@ -4,6 +4,45 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-10-10
+
+### Added
+
+- **The live console.** The page you land on after signing in now shows the Docker Engine on this machine, read
+  through the bridge: engine status, every compose project with health, CPU and memory per service, a filtered
+  log tail and guarded exec against a container you pick, and a timeline of what agents asked for.
+- **The console service** (`console/`), a third container that serves the bridge's tools over HTTP to the signed-in
+  administrator. It is the one container given the Docker socket. It publishes no port, checks the session itself
+  as well as behind nginx, never runs a command in its own stack, and can be left out with
+  `docker compose up --scale console=0`.
+- **An activity log.** The MCP server records each tool call in `data/activity/`: when, which client, which tool
+  and target, the command or filter, how it went and the token counts. Never the output.
+  `DOCKER_BRIDGE_ACTIVITY=off` disables it.
+- Setup for **any MCP client**: the shared `mcpServers` block with where each client keeps it (Claude Code, Claude
+  Desktop, Cursor, Windsurf, Gemini CLI), plus the VS Code and Codex CLI formats.
+- `CONSOLE_EXEC`, `DOCKER_SOCKET_GID` and `ACTIVITY_DIR` settings for the console.
+- The console service shares one engine reading among every page asking for it, so the number of open tabs does
+  not multiply the load on Docker. `npm run load-check` measures the whole chain under many pages at once.
+- Tests: 388 unit and component tests and 157 end-to-end tests, the latter now reading a real Docker Engine.
+
+### Changed
+
+- The simulated showcase moved from `/` to `/showcase/`. `/` is the live console.
+- The server is described as what it is, a standard MCP server, rather than as a Claude Code add-on, across the
+  site, the docs and the README.
+- The setup guide starts with cloning the repository, because the server runs from a clone and is not on npm.
+- The status bar on the console, docs and account pages reports the real engine. Only the showcase keeps the
+  simulated readout, labelled as such.
+- An anonymous request to `/api/` is answered with 401 JSON rather than a redirect to sign-in.
+- Commits no longer carry a co-author trailer.
+
+### Security
+
+- Adding the console means one container now holds the Docker socket; before this release none did. How that is
+  bounded, and what remains accepted, is set out in `security/reports/SUMMARY.md`.
+- The browser tests and screenshots run a console limited to their own throwaway stack, so they neither depend on
+  nor reveal what else runs on the machine.
+
 ## [0.2.0] - 2026-10-10
 
 ### Added
@@ -71,5 +110,6 @@ Hardening applied before release, after scanning with secsuite (see `security/re
 - An anonymous request for anything that looks like a file is answered with 404 rather than a redirect to the
   sign-in page; only page requests are sent to sign-in.
 
+[0.3.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kizzbonez/docker_bridge/releases/tag/v0.1.0
