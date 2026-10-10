@@ -1,0 +1,5 @@
+# Store and check out text with LF everywhere: these files are built and run on Linux.
+* text=auto eol=lf
+
+*.png binary
+*.woff2 binary
