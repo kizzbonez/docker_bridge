@@ -12,6 +12,16 @@ export interface LineProps {
 
 const PAYLOAD = 'mt-1 ml-1.5 border-l border-cyan-500/20 pl-3 break-words whitespace-pre-wrap';
 
+/** The indented JSON body under a tool call or its result. */
+function JsonPayload({ text, caret }: Pick<LineProps, 'text' | 'caret'>) {
+  return (
+    <pre className={PAYLOAD}>
+      <CodeText language="json" text={text} />
+      {caret}
+    </pre>
+  );
+}
+
 export function PromptLine({ text, caret }: LineProps) {
   return (
     <p className="text-ink">
@@ -40,10 +50,7 @@ export function CallLine({ step, text, caret }: LineProps) {
         docker-debug-bridge · <span className="text-cyan-300">{step.label}</span>{' '}
         <span className="text-ink-mute">(MCP)</span>
       </p>
-      <pre className={PAYLOAD}>
-        <CodeText language="json" text={text} />
-        {caret}
-      </pre>
+      <JsonPayload text={text} caret={caret} />
     </div>
   );
 }
@@ -55,10 +62,7 @@ export function ResultLine({ step, text, caret }: LineProps) {
         <span className="mr-2">⎿</span>
         result <span className="text-emerald-400">≈ {estimateTokens(step.text)} tokens</span>
       </p>
-      <pre className={PAYLOAD}>
-        <CodeText language="json" text={text} />
-        {caret}
-      </pre>
+      <JsonPayload text={text} caret={caret} />
     </div>
   );
 }
