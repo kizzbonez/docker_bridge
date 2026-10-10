@@ -1,9 +1,11 @@
 # syntax=docker/dockerfile:1
 #
-# Two images come out of this file; docker-compose.yml selects them by target:
-#   web   unprivileged nginx serving the static site behind the sign-in wall
-#   auth  the sign-in service (Node, no npm dependencies, no build step)
+# Three images come out of this file; docker-compose.yml selects them by target:
+#   web      unprivileged nginx serving the static site behind the sign-in wall
+#   auth     the sign-in service
+#   console  the live console's API: the bridge's tools over HTTP
 #
+# auth and console are Node with no npm dependencies and no build step.
 # Base images are pinned by digest so a rebuilt image cannot silently change.
 
 # ---- build: compile the static site -----------------------------------------
@@ -37,19 +39,22 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget -q --spider http://127.0.0.1:8080/healthz || exit 1
 
-# ---- auth: the sign-in service -----------------------------------------------
-# Node runs the TypeScript sources directly (built-in type stripping), so the
-# image holds nothing but the runtime and a dozen small files.
-FROM node:24.21.0-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS auth
+# ---- runtime: Node for the two services --------------------------------------
+# Node runs the TypeScript sources directly (built-in type stripping), so each
+# service image holds nothing but the runtime and a few small files.
+FROM node:24.21.0-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
-# The service has no dependencies, so the package managers shipped in the base
-# image are dead weight, and their own bundled packages are where most of the
-# image's CVEs come from. Remove them, and take pending OS security patches.
+# Neither service has dependencies, so the package managers shipped in the
+# base image are dead weight, and their own bundled packages are where most of
+# the image's CVEs come from. Remove them, and take pending OS security patches.
 RUN apk upgrade --no-cache \
  && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx \
            /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-*
+
+# ---- auth: the sign-in service -----------------------------------------------
+FROM runtime AS auth
 
 COPY auth/ ./auth/
 # Account state lives on a volume mounted here; the service user must own it.
@@ -63,3 +68,26 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget -q --spider http://127.0.0.1:8081/auth/healthz || exit 1
 
 CMD ["node", "auth/server.ts"]
+
+# ---- console: the live console's API -----------------------------------------
+# The same bridge code the MCP server runs, answering the signed-in
+# administrator over HTTP. It is the one container given the Docker socket.
+FROM runtime AS console
+
+COPY bridge/ ./bridge/
+COPY console/ ./console/
+# The request helpers it shares with the auth service; nothing else from there.
+COPY auth/http.ts ./auth/http.ts
+
+# In the image the session check is always on, and the agents' activity log
+# is expected at the mount point compose provides.
+ENV AUTH_URL=http://auth:8081 \
+    DOCKER_BRIDGE_ACTIVITY_DIR=/activity
+
+USER node
+EXPOSE 8082
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1:8082/api/healthz || exit 1
+
+CMD ["node", "console/server.ts"]

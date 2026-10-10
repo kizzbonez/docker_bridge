@@ -15,6 +15,9 @@ ls:
     .dir: kebab-case
     .ts: kebab-case
     .test.ts: kebab-case
+  console:
+    .ts: kebab-case
+    .test.ts: kebab-case
   portal:
     .dir: kebab-case
     .tsx: kebab-case

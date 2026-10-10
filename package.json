@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "bridge": "node bridge/index.ts",
+    "console": "node console/server.ts",
     "build": "tsc -b && npm run build:bundles",
     "build:bundles": "vite build && vite build --config vite.portal.config.ts",
     "preview": "vite preview --host 127.0.0.1",

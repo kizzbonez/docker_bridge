@@ -1,15 +1,20 @@
-# DockerBridge dashboard — a static showcase behind a two-factor sign-in wall.
+# DockerBridge — a live console for your Docker Engine, behind a two-factor
+# sign-in wall, with the showcase and documentation for the MCP server.
 #
 #   docker compose up -d --build     # build and start
 #   docker compose logs auth         # first start: read the one-time setup token
-#   open http://127.0.0.1:8742       # onboarding wizard, then the dashboard
+#   open http://127.0.0.1:8742       # onboarding wizard, then the console
 #   docker compose down              # stop (add -v to also delete the account)
 #
 # The port binds to 127.0.0.1 only: reachable from this machine, not the LAN.
 # To publish it, front it with a reverse proxy or tunnel; do not change the bind.
 #
-# Despite the product's name, nothing here mounts the Docker socket. Everything
-# the dashboard shows is simulated in the browser.
+# One container, `console`, is given the Docker socket. It publishes no port,
+# answers only requests that carry a signed-in session, exposes no call that
+# creates, stops or removes anything, and refuses to run commands in this
+# stack. To run without it (showcase and docs only, no socket mounted):
+#
+#   docker compose up -d --build --scale console=0
 name: docker-bridge
 
 x-hardening: &hardening
@@ -49,7 +54,7 @@ services:
       retries: 3
       start_period: 5s
 
-  # Sign-in service. Publishes no port: only the dashboard container reaches it.
+  # Sign-in service. Publishes no port: only the other two containers reach it.
   auth:
     <<: *hardening
     build:
@@ -81,12 +86,53 @@ services:
       retries: 3
       start_period: 5s
 
+  # The live console's API: the bridge's three tools over HTTP. Publishes no
+  # port. nginx forwards /api/ to it only for a signed-in session, and it asks
+  # the auth service again itself before answering.
+  console:
+    <<: *hardening
+    build:
+      context: .
+      target: console
+    image: dockerbridge-console:local
+    depends_on:
+      auth:
+        condition: service_healthy
+    environment:
+      AUTH_URL: http://auth:8081
+      # Read-only: docker_safe_exec refuses every state-changing command.
+      READ_ONLY_MODE: ${READ_ONLY_MODE:-true}
+      # false: no command can be run from the browser at all.
+      CONSOLE_EXEC: ${CONSOLE_EXEC:-true}
+      # Optional. Comma-separated compose projects; the console sees nothing else.
+      DOCKER_BRIDGE_PROJECTS: ${DOCKER_BRIDGE_PROJECTS:-}
+    volumes:
+      # The Docker Engine. Root-equivalent on the host: see the note at the top.
+      - ${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock
+      # What agents have called, written by the MCP server on the host.
+      - ${ACTIVITY_DIR:-./data/activity}:/activity:ro
+    networks:
+      - backend
+    user: "1000:1000"
+    # The group that owns the socket: 0 on Docker Desktop; on Linux, the gid of
+    # the `docker` group (`stat -c %g /var/run/docker.sock`).
+    group_add:
+      - "${DOCKER_SOCKET_GID:-0}"
+    mem_limit: 128m
+    cpus: 0.5
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8082/api/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
 volumes:
   auth-data:
 
 networks:
   # Carries the published port.
   edge:
-  # dashboard <-> auth only. `internal` means no route to the outside world.
+  # dashboard, auth and console only. `internal` means no route to the outside world.
   backend:
     internal: true

@@ -34,6 +34,9 @@ interface PendingExec {
   exitCode: number | null;
 }
 
+/** What `GET /info` answers. */
+export const ENGINE_INFO = { ServerVersion: '29.8.0', OperatingSystem: 'Docker Desktop', NCPU: 12, MemTotal: 16 * 1024 * 1048576 };
+
 const STATS = {
   cpu_stats: { cpu_usage: { total_usage: 400 }, system_cpu_usage: 2000, online_cpus: 2 },
   precpu_stats: { cpu_usage: { total_usage: 200 }, system_cpu_usage: 1000 },
@@ -114,6 +117,7 @@ export async function startFakeEngine(containers: FakeContainer[]): Promise<Fake
     requests.push(`${req.method} ${path}${url.search}`);
     const [, kind = '', id = '', action = ''] = path.split('/');
 
+    if (path === '/info') return json(res, 200, ENGINE_INFO);
     if (path === '/containers/json') {
       const listed = containers.map((c) => ({ Id: c.id, Names: [`/${c.name}`], Image: c.image, State: c.state, Labels: c.labels }));
       return json(res, 200, listed);

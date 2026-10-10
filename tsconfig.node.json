@@ -17,5 +17,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["vite.config.ts", "vite.portal.config.ts", "playwright.config.ts", "tests/e2e", "auth", "bridge"]
+  "include": ["vite.config.ts", "vite.portal.config.ts", "playwright.config.ts", "tests/e2e", "auth", "bridge", "console"]
 }

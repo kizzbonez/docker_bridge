@@ -15,8 +15,9 @@ export default defineConfig({
     },
   },
   server: {
-    // Optional in development: `node auth/server.ts` on 8081 enables sign-in.
-    proxy: { '/auth': 'http://127.0.0.1:8081' },
+    // Optional in development: `node auth/server.ts` on 8081 enables sign-in,
+    // and `npm run console` on 8082 feeds the live console.
+    proxy: { '/auth': 'http://127.0.0.1:8081', '/api': 'http://127.0.0.1:8082' },
   },
   build: {
     target: 'es2022',
@@ -36,12 +37,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'auth/**/*.test.ts', 'bridge/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'auth/**/*.test.ts', 'bridge/**/*.test.ts', 'console/**/*.test.ts'],
     css: false,
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.{ts,tsx}', 'auth/**/*.ts', 'bridge/**/*.ts'],
-      exclude: ['src/test/**', '**/*.test.{ts,tsx}', 'src/*main.tsx', 'auth/test-harness.ts', 'auth/server.ts', 'auth/cli.ts', 'bridge/test-support/**', 'bridge/index.ts'],
+      include: ['src/**/*.{ts,tsx}', 'auth/**/*.ts', 'bridge/**/*.ts', 'console/**/*.ts'],
+      exclude: ['src/test/**', '**/*.test.{ts,tsx}', 'src/*main.tsx', 'auth/test-harness.ts', 'auth/server.ts', 'auth/cli.ts', 'bridge/test-support/**', 'bridge/index.ts', 'console/server.ts', 'console/test-harness.ts'],
       reporter: ['text-summary', 'json-summary'],
     },
   },

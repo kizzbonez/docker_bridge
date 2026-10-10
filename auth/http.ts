@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import type { ClientInfo } from './sessions.ts';
 
 export const SESSION_COOKIE = 'db_session';
@@ -96,4 +96,25 @@ export function field(body: Record<string, unknown>, name: string, maxLength: nu
   const value = body[name];
   if (typeof value !== 'string' || value === '' || value.length > maxLength) throw new HttpError(400, 'invalid_request', { field: name });
   return value;
+}
+
+/** Answers a thrown error: an HttpError as itself, anything else as an opaque 500. */
+export function sendFailure(res: ServerResponse, error: unknown): void {
+  if (res.headersSent) return void res.end();
+  if (error instanceof HttpError) {
+    const retryAfter = error.body.retryAfter;
+    const headers: Record<string, string> = typeof retryAfter === 'number' ? { 'Retry-After': String(retryAfter) } : {};
+    return sendJson(res, error.status, error.body, headers);
+  }
+  console.error(JSON.stringify({ level: 'error', message: error instanceof Error ? error.message : 'unknown error' }));
+  sendJson(res, 500, { error: 'internal_error' });
+}
+
+/** Slow or oversized requests are cut off rather than held open. */
+export function harden(server: Server): Server {
+  server.headersTimeout = 5_000;
+  server.requestTimeout = 10_000;
+  server.keepAliveTimeout = 5_000;
+  server.maxHeadersCount = 50;
+  return server;
 }
