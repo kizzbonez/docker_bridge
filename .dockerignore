@@ -18,4 +18,5 @@ playwright.config.ts
 **/*.test.ts
 **/*.test.tsx
 auth/test-harness.ts
+bridge/test-support
 src/test

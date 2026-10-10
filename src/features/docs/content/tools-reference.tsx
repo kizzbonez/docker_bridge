@@ -1,5 +1,5 @@
 import { EXEC_DEFAULTS, TAIL_DEFAULTS, TOPOLOGY_DEFAULTS, runExec, runTail, runTopology, type ToolRun } from '@/features/tool-playground/model/tool-runs';
-import { TOOL_NAMES, TOOL_SPECS, type ToolName } from '@/mock-bridge/tool-specs';
+import { TOOL_NAMES, TOOL_SPECS, type ToolName } from '@bridge/core/tool-specs';
 import { Badge } from '@/shared/ui/badge';
 import { CodeSample } from '../ui/code-sample';
 import { DocSection } from '../ui/doc-section';

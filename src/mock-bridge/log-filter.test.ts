@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ESC } from '@/shared/lib/ansi';
-import { MAX_LINE_LENGTH, MAX_PATTERN_LENGTH, compilePattern } from './filter-pattern';
+import { MAX_LINE_LENGTH, MAX_PATTERN_LENGTH, compilePattern } from '@bridge/core/filter-pattern';
 import { RAW_LOGS } from './fixtures/raw-logs';
 import { tailFilteredLogs, type TailArgs } from './log-filter';
 import { CONTAINER_IDS } from './types';

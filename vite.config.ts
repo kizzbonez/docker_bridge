@@ -10,6 +10,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       // The password policy is shared verbatim between the browser and the auth service.
       '@auth': fileURLToPath(new URL('./auth', import.meta.url)),
+      // The tool contract is shared verbatim between the dashboard and the MCP server.
+      '@bridge': fileURLToPath(new URL('./bridge', import.meta.url)),
     },
   },
   server: {
@@ -34,12 +36,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'auth/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'auth/**/*.test.ts', 'bridge/**/*.test.ts'],
     css: false,
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.{ts,tsx}', 'auth/**/*.ts'],
-      exclude: ['src/test/**', '**/*.test.{ts,tsx}', 'src/*main.tsx', 'auth/test-harness.ts', 'auth/server.ts', 'auth/cli.ts'],
+      include: ['src/**/*.{ts,tsx}', 'auth/**/*.ts', 'bridge/**/*.ts'],
+      exclude: ['src/test/**', '**/*.test.{ts,tsx}', 'src/*main.tsx', 'auth/test-harness.ts', 'auth/server.ts', 'auth/cli.ts', 'bridge/test-support/**', 'bridge/index.ts'],
       reporter: ['text-summary', 'json-summary'],
     },
   },

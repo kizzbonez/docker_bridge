@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { EXEC_PRESETS } from '@/mock-bridge/exec-outputs';
-import { MAX_COMMAND_LENGTH } from '@/mock-bridge/exec-policy';
+import { MAX_COMMAND_LENGTH } from '@bridge/core/exec-policy';
 import type { ExecArgs } from '@/mock-bridge/safe-exec';
 import { Field, RangeInput, TextInput } from '@/shared/ui/field';
 import { Toggle } from '@/shared/ui/toggle';

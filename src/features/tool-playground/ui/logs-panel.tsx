@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MAX_PATTERN_LENGTH } from '@/mock-bridge/filter-pattern';
+import { MAX_PATTERN_LENGTH } from '@bridge/core/filter-pattern';
 import type { TailArgs } from '@/mock-bridge/log-filter';
 import { Field, RangeInput, TextInput } from '@/shared/ui/field';
 import { Toggle } from '@/shared/ui/toggle';

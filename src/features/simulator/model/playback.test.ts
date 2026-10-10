@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BASELINE_MESH } from '@/mock-bridge/fleet';
-import { TOOL_NAMES } from '@/mock-bridge/tool-specs';
+import { TOOL_NAMES } from '@bridge/core/tool-specs';
 import { CONTAINER_IDS } from '@/mock-bridge/types';
 import { deriveMesh, jitterMesh } from './derive-mesh';
 import { CHARS_PER_TICK, IDLE, playbackReducer, statusOf, stepsOf, type Playback } from './playback';

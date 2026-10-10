@@ -29,13 +29,13 @@ export default tseslint.config(
     rules: { 'max-lines': budgets['max-lines'] },
   },
   {
-    files: ['auth/**/*.ts'],
+    files: ['auth/**/*.ts', 'bridge/**/*.ts'],
     languageOptions: { globals: globals.node },
     rules: budgets,
   },
   {
     // A describe() block is one "function"; the per-function budget would only add noise.
-    files: ['src/**/*.test.{ts,tsx}', 'auth/**/*.test.ts', 'auth/test-harness.ts', 'tests/**/*.ts'],
+    files: ['src/**/*.test.{ts,tsx}', 'auth/**/*.test.ts', 'auth/test-harness.ts', 'bridge/**/*.test.ts', 'bridge/test-support/**/*.ts', 'tests/**/*.ts'],
     rules: { 'max-lines-per-function': 'off' },
   },
 );

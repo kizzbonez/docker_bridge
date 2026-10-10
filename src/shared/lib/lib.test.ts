@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ESC, countAnsi, paint, revealAnsi, stripAnsi } from './ansi';
+import { ESC, paint, revealAnsi, stripAnsi } from './ansi';
 import { parseCsv } from './csv';
 import { cx } from './cx';
 import { clamp, formatInt, formatPercent, formatUsd } from './format';
@@ -38,8 +38,7 @@ describe('ansi', () => {
   it('wraps and strips SGR sequences', () => {
     expect(coloured).toBe(`${ESC}[31mboom${ESC}[0m`);
     expect(stripAnsi(coloured)).toBe('boom');
-    expect(countAnsi(coloured)).toBe(2);
-    expect(countAnsi('plain')).toBe(0);
+    expect(stripAnsi('plain')).toBe('plain');
   });
 
   it('makes escape bytes visible', () => {

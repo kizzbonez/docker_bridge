@@ -5,7 +5,7 @@ import { pickActive } from '@/features/docs/hooks/use-scroll-spy';
 import { TOC, TOC_IDS } from '@/features/docs/model/toc';
 import { describeConstraints } from '@/features/docs/ui/param-table';
 import { MCP_CONFIG_JSON } from '@/features/setup/model/config-snippets';
-import { TOOL_NAMES } from '@/mock-bridge/tool-specs';
+import { TOOL_NAMES } from '@bridge/core/tool-specs';
 import { useCountUp } from '@/shared/hooks/use-count-up';
 import { setReducedMotion } from '@/test/setup';
 import { App } from './app';

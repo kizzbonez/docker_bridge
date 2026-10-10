@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { pretty } from '@/mock-bridge/rpc';
-import { TOOL_SPECS, type ToolName } from '@/mock-bridge/tool-specs';
+import { TOOL_SPECS, type ToolName } from '@bridge/core/tool-specs';
 import { estimateTokens } from '@/shared/lib/tokens';
 import { Badge } from '@/shared/ui/badge';
 import { CodeBlock } from '@/shared/ui/code-block';

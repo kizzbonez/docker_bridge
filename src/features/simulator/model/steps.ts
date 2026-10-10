@@ -2,7 +2,7 @@ import { PROJECT } from '@/mock-bridge/fleet';
 import { tailFilteredLogs, type TailArgs } from '@/mock-bridge/log-filter';
 import { INVALID_PARAMS, rpcCall, rpcError, rpcResult } from '@/mock-bridge/rpc';
 import { safeExec, type ExecArgs } from '@/mock-bridge/safe-exec';
-import type { ToolName } from '@/mock-bridge/tool-specs';
+import type { ToolName } from '@bridge/core/tool-specs';
 import { getStackTopology } from '@/mock-bridge/topology';
 import type { MeshPatch, MeshState } from '@/mock-bridge/types';
 import { estimateTokens } from '@/shared/lib/tokens';

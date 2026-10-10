@@ -1,11 +1,10 @@
+import { REDACTED } from '@bridge/core/redact';
 import type { ContainerId } from './types';
 
 export interface CannedOutput {
   stdout: string;
   durationMs: number;
 }
-
-const REDACTED = '«redacted»';
 
 /** Canned stdout for the commands the showcase knows about, per container. */
 const OUTPUTS: Record<ContainerId, Record<string, CannedOutput>> = {

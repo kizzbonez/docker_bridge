@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EXEC_PRESETS } from './exec-outputs';
-import { ALLOWED_BINARIES, EXEC_RULES, MAX_COMMAND_LENGTH, evaluateCommand } from './exec-policy';
+import { ALLOWED_BINARIES, EXEC_RULES, MAX_COMMAND_LENGTH, evaluateCommand } from '@bridge/core/exec-policy';
 import { safeExec } from './safe-exec';
 import { CONTAINER_IDS } from './types';
 

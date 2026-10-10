@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { TOOL_SPECS, type ToolName } from '@/mock-bridge/tool-specs';
+import { TOOL_SPECS, type ToolName } from '@bridge/core/tool-specs';
 import { Badge } from '@/shared/ui/badge';
 import type { ToolRun } from '../model/tool-runs';
 import { ToolOutput } from './tool-output';

@@ -16,7 +16,7 @@ export default defineConfig({
   base: '/portal/',
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: { '@': path('./src'), '@auth': path('./auth') },
+    alias: { '@': path('./src'), '@auth': path('./auth'), '@bridge': path('./bridge') },
   },
   build: {
     outDir: path('./dist/portal'),

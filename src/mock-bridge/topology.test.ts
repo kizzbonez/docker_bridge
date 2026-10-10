@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BASELINE_MESH } from './fleet';
 import { applyPatch, applyPatches } from './mesh';
 import { INVALID_PARAMS, rpcCall, rpcError, rpcResult } from './rpc';
-import { TOOL_NAMES, TOOL_SPECS } from './tool-specs';
+import { TOOL_NAMES, TOOL_SPECS } from '@bridge/core/tool-specs';
 import { getStackTopology } from './topology';
 
 const args = { project: 'shop', include_metrics: true, include_stopped: true };

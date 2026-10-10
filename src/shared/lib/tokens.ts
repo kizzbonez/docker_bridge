@@ -1,9 +1,2 @@
-const CHARS_PER_TOKEN = 4;
-
-/**
- * Rough token estimate (~4 characters per token). Good enough to compare
- * payload sizes; it is not a real tokenizer.
- */
-export function estimateTokens(text: string): number {
-  return Math.ceil(text.length / CHARS_PER_TOKEN);
-}
+// The estimate the MCP server budgets with; re-exported so the UI shows the same numbers.
+export { estimateTokens } from '@bridge/core/text';

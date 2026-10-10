@@ -11,6 +11,10 @@ ls:
   auth:
     .ts: kebab-case
     .test.ts: kebab-case
+  bridge:
+    .dir: kebab-case
+    .ts: kebab-case
+    .test.ts: kebab-case
   portal:
     .dir: kebab-case
     .tsx: kebab-case

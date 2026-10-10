@@ -1,6 +1,6 @@
 import { GUARDRAILS } from '@/features/architecture/model/guardrails';
-import { ALLOWED_BINARIES, EXEC_RULES, MAX_COMMAND_LENGTH } from '@/mock-bridge/exec-policy';
-import { MAX_PATTERN_LENGTH } from '@/mock-bridge/filter-pattern';
+import { ALLOWED_BINARIES, EXEC_RULES, MAX_COMMAND_LENGTH } from '@bridge/core/exec-policy';
+import { MAX_PATTERN_LENGTH } from '@bridge/core/filter-pattern';
 import { Badge } from '@/shared/ui/badge';
 import { Callout } from '../ui/callout';
 import { DataTable } from '../ui/data-table';

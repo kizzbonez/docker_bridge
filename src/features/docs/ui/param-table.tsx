@@ -1,4 +1,4 @@
-import type { InputSchema, SchemaProperty } from '@/mock-bridge/tool-specs';
+import type { InputSchema, SchemaProperty } from '@bridge/core/tool-specs';
 import { DataTable } from './data-table';
 
 /** Human-readable constraints: allowed values, range, length, default. */

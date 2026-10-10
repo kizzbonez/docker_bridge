@@ -1,5 +1,5 @@
 import { memo, useState, type ComponentType } from 'react';
-import { TOOL_NAMES, type ToolName } from '@/mock-bridge/tool-specs';
+import { TOOL_NAMES, type ToolName } from '@bridge/core/tool-specs';
 import { GlassPanel } from '@/shared/ui/glass-panel';
 import { Section } from '@/shared/ui/section';
 import { TabPanel, Tabs } from '@/shared/ui/tabs';

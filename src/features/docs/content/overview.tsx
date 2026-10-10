@@ -1,4 +1,4 @@
-import { TOOL_NAMES, TOOL_SPECS } from '@/mock-bridge/tool-specs';
+import { TOOL_NAMES, TOOL_SPECS } from '@bridge/core/tool-specs';
 import { Callout } from '../ui/callout';
 import { DocSection } from '../ui/doc-section';
 import { C, P } from '../ui/prose';

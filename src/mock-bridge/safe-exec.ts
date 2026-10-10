@@ -1,5 +1,5 @@
 import { cannedOutput } from './exec-outputs';
-import { evaluateCommand } from './exec-policy';
+import { evaluateCommand } from '@bridge/core/exec-policy';
 import type { ContainerId } from './types';
 
 export interface ExecArgs {
