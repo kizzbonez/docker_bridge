@@ -53,8 +53,10 @@ export function Guardrails() {
       <DataTable caption="Exec policy rules" columns={['Example', 'Verdict', 'Reason returned']} rows={RULE_ROWS} />
 
       <Callout title="Regex input is guarded too">
-        <C>filter_pattern</C> is capped at {MAX_PATTERN_LENGTH} characters, and patterns with nested quantifiers such as{' '}
-        <C>(a+)+</C> are rejected with JSON-RPC error <C>-32602</C> before they can backtrack catastrophically.
+        <C>filter_pattern</C> is capped at {MAX_PATTERN_LENGTH} characters. Shapes that make a regex engine backtrack
+        catastrophically, such as <C>(a+)+</C> or <C>(a|aa)+</C>, and patterns with more than two unbounded
+        quantifiers are rejected with JSON-RPC error <C>-32602</C>. A production server should use a linear-time
+        engine such as RE2.
       </Callout>
       <P>
         Secrets are redacted on the way out as well: <C>env</C> returns values such as passwords and tokens as{' '}

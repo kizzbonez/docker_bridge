@@ -1,6 +1,6 @@
 import { stripAnsi } from '@/shared/lib/ansi';
 import { estimateTokens } from '@/shared/lib/tokens';
-import { compilePattern } from './filter-pattern';
+import { MAX_LINE_LENGTH, compilePattern } from './filter-pattern';
 import { RAW_LOGS } from './fixtures/raw-logs';
 import type { ContainerId } from './types';
 
@@ -67,7 +67,7 @@ export function tailFilteredLogs(args: TailArgs): TailOutcome {
   const firstLine = all.length - tail.length + 1;
   const matched = tail
     .map((raw, index) => ({ line: firstLine + index, repeats: 1, text: args.strip_ansi ? stripAnsi(raw) : raw }))
-    .filter((entry) => pattern.regex.test(entry.text));
+    .filter((entry) => pattern.regex.test(entry.text.slice(0, MAX_LINE_LENGTH)));
   const collapsed = collapse(matched);
   const { kept, used } = fitBudget(collapsed, args.token_budget);
 

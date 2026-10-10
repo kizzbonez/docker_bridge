@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ESC } from '@/shared/lib/ansi';
-import { MAX_PATTERN_LENGTH, compilePattern } from './filter-pattern';
+import { MAX_LINE_LENGTH, MAX_PATTERN_LENGTH, compilePattern } from './filter-pattern';
 import { RAW_LOGS } from './fixtures/raw-logs';
 import { tailFilteredLogs, type TailArgs } from './log-filter';
 import { CONTAINER_IDS } from './types';
@@ -33,10 +33,32 @@ describe('compilePattern', () => {
     expect(compilePattern('a'.repeat(MAX_PATTERN_LENGTH + 1))).toMatchObject({ ok: false });
   });
 
-  it.each(['(a+)+$', '(.*)*', '(x+){2,}'])('rejects nested quantifier %s', (pattern) => {
-    const compiled = compilePattern(pattern);
-    expect(compiled.ok).toBe(false);
-    expect(!compiled.ok && compiled.message).toContain('ReDoS');
+  it.each(['(a+)+$', '(.*)*', '(x+){2,}', '(a|aa)+$', '(.|.)*x', '(\\d|\\w)*!', '.*.*.*x', 'a*a*a*b', 'a+b+c+d'])(
+    'rejects the catastrophic shape %s',
+    (pattern) => {
+      const compiled = compilePattern(pattern);
+      expect(compiled.ok).toBe(false);
+      expect(!compiled.ok && compiled.message).toContain('ReDoS');
+    },
+  );
+
+  // Escaped quantifier characters are literals and must not count against the cap.
+  it.each(['error|fatal', '(GET|POST) /api', 'connect\\(\\) failed', 'timeout.*pool', '\\d{3} \\d+', 'a\\+b\\*c\\+d\\*e', '^\\[error\\]'])(
+    'still accepts the ordinary filter %s',
+    (pattern) => {
+      expect(compilePattern(pattern).ok).toBe(true);
+    },
+  );
+
+  it('keeps every accepted pattern fast on the most hostile line it can be given', () => {
+    const hostile = 'a'.repeat(MAX_LINE_LENGTH);
+    for (const pattern of ['a*a*b', 'a+a+$x', '.*.*z', '(a|b)c', 'a.*a.*z', '^a+$']) {
+      const compiled = compilePattern(pattern);
+      expect(compiled.ok, pattern).toBe(true);
+      const started = performance.now();
+      if (compiled.ok) compiled.regex.test(hostile);
+      expect(performance.now() - started, pattern).toBeLessThan(250);
+    }
   });
 });
 
