@@ -1,0 +1,13 @@
+# Rendered to /tmp/frame-policy.conf when the container starts, from the
+# FRAME_ANCESTORS setting, after 12-frame-ancestors.envsh has checked it.
+# The two variables are used by security-headers.conf.
+
+# Who may show this site inside a frame.
+map "" $frame_ancestors {
+    default "${FRAME_ANCESTORS_CSP}";
+}
+
+# The older header for the same thing. Empty means "do not send it".
+map "" $x_frame_options {
+    default "${X_FRAME_OPTIONS}";
+}

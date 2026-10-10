@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-10-10
+
+### Added
+
+- `FRAME_ANCESTORS`: the sites that may show this one inside a frame, for embedding it as a preview on another
+  page. `none` by default, as before. It takes `self` and https origins; a bare wildcard, http origins and
+  anything that is not a list of sites stop the container from starting. When a site is named,
+  `X-Frame-Options` is no longer sent, since it cannot express a list, and the Content-Security-Policy decides.
+
 ## [0.3.2] - 2026-10-10
 
 ### Added
@@ -125,6 +134,7 @@ Hardening applied before release, after scanning with secsuite (see `security/re
 - An anonymous request for anything that looks like a file is answered with 404 rather than a redirect to the
   sign-in page; only page requests are sent to sign-in.
 
+[0.4.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.2.0...v0.3.0

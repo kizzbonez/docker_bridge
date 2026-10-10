@@ -7,6 +7,7 @@ import { BASE_URL, STORAGE_FILE } from './tests/e2e/support/state.ts';
 //   setup    runs the onboarding wizard on the fresh install and keeps the session
 //   desktop  ┐ the console, showcase and docs, signed in, at two viewport sizes
 //   mobile   ┘
+//   image    what the web image itself does with its settings; no browser
 //   account  sign-in, lockout and account changes; last, because it ends sessions
 const desktop = { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } };
 const SIGNED_IN = /(console|showcase|simulator|widgets|docs|security)\.spec\.ts/;
@@ -33,6 +34,7 @@ export default defineConfig({
     { name: 'setup', testMatch: /onboarding\.setup\.ts/, use: desktop },
     { name: 'desktop', testMatch: SIGNED_IN, dependencies: ['setup'], use: { ...desktop, storageState: STORAGE_FILE } },
     { name: 'mobile', testMatch: SIGNED_IN, dependencies: ['setup'], use: { ...devices['Pixel 7'], storageState: STORAGE_FILE } },
+    { name: 'image', testMatch: /framing\.spec\.ts/ },
     { name: 'account', testMatch: /auth\.spec\.ts/, dependencies: ['desktop', 'mobile'], use: desktop },
   ],
 });

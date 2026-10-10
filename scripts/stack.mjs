@@ -31,6 +31,11 @@ export function startStack({ project, port, activityDir }) {
     AUTH_SETUP_TOKEN: setupToken,
     DOCKER_BRIDGE_PROJECTS: project,
     ACTIVITY_DIR: activityDir,
+    // Pinned to the defaults, so a local .env written for the real install
+    // cannot change what the tests and screenshots see.
+    FRAME_ANCESTORS: 'none',
+    READ_ONLY_MODE: 'true',
+    CONSOLE_EXEC: 'true',
   };
   compose(project, env, 'down', '-v', '--remove-orphans');
   compose(project, env, 'up', '-d', '--build', '--wait');

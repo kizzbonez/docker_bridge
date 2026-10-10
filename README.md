@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-0.3.2-06b6d4">
-  <img alt="tests" src="https://img.shields.io/badge/tests-389%20unit%20%C2%B7%20157%20e2e-10b981">
+  <img alt="version" src="https://img.shields.io/badge/version-0.4.0-06b6d4">
+  <img alt="tests" src="https://img.shields.io/badge/tests-389%20unit%20%C2%B7%20160%20e2e-10b981">
   <img alt="clients" src="https://img.shields.io/badge/works%20with-any%20MCP%20client-38bdf8">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-10b981">
   <img alt="auth" src="https://img.shields.io/badge/sign--in-password%20%2B%20TOTP-38bdf8">
@@ -196,6 +196,7 @@ docker compose up -d --build --scale console=0
 | `CONSOLE_EXEC` | `true` | `false`: no command can be run from the browser at all |
 | `DOCKER_BRIDGE_PROJECTS` | unset | Limit the console to the compose projects you name |
 | `DOCKER_SOCKET_GID` | `0` | The group that owns the socket. `0` suits Docker Desktop; on Linux use the `docker` group's gid |
+| `FRAME_ANCESTORS` | `none` | Who may show the site in an `<iframe>`: `none`, or `self` and https origins separated by spaces, e.g. `https://portfolio.example.com`. Wildcards for everyone and http origins are refused |
 
 The port is bound to `127.0.0.1`, so the site is reachable from this machine only. To publish it, keep that bind
 and point a tunnel at it: with Cloudflare Tunnel, add a public hostname whose service is
@@ -344,7 +345,7 @@ npm run console        # second terminal: live data for the console page
 |---|---|
 | `npm run verify` | Typecheck, lint with size budgets, unit tests and a production build |
 | `npm run test` | Vitest: 389 unit and component tests, including the three services over real HTTP and stdio |
-| `npm run e2e` | Starts a throwaway stack, walks through onboarding, then runs 157 browser tests |
+| `npm run e2e` | Starts a throwaway stack, walks through onboarding, then runs 160 browser tests |
 | `npm run bridge` | The MCP server on stdio, as a client would launch it |
 | `npm run console` | The console API from source, for the dev server. No sign-in: never publish its port |
 | `npm run screenshots` | Regenerates the images above on a throwaway stack |
@@ -371,8 +372,8 @@ throwaway project, so they never touch or reveal a real install.
 ## Security
 
 - **Headers.** A Content-Security-Policy of `default-src 'none'` with first-party files only (no inline script or
-  style, no third-party origin), plus `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, COOP,
-  CORP and a locked-down Permissions-Policy. Protected responses are `Cache-Control: private`, so a CDN in front
+  style, no third-party origin), plus `nosniff`, `Referrer-Policy: no-referrer`, COOP, CORP and a locked-down
+  Permissions-Policy. No page may frame the site unless you name it in `FRAME_ANCESTORS`. Protected responses are `Cache-Control: private`, so a CDN in front
   cannot cache and replay them.
 - **Containers.** Unprivileged users, read-only root filesystems, all capabilities dropped, `no-new-privileges`,
   memory, CPU and PID limits, base images pinned by digest.

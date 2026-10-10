@@ -36,6 +36,10 @@ services:
     depends_on:
       auth:
         condition: service_healthy
+    environment:
+      # Who may show this site inside a frame. none: nobody. Otherwise "self"
+      # and/or https origins separated by spaces, e.g. https://portfolio.example.com
+      FRAME_ANCESTORS: ${FRAME_ANCESTORS:-none}
     ports:
       - "127.0.0.1:${DASHBOARD_PORT:-8742}:8080"
     networks:

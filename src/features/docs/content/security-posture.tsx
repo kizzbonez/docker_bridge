@@ -1,7 +1,8 @@
-import { SECURITY_HEADERS } from '../model/facts';
+import { FRAMING_EXAMPLE, SECURITY_HEADERS } from '../model/facts';
+import { CodeSample } from '../ui/code-sample';
 import { DataTable } from '../ui/data-table';
 import { DocSection } from '../ui/doc-section';
-import { Bullets, C, H3 } from '../ui/prose';
+import { Bullets, C, H3, P } from '../ui/prose';
 
 const CONTAINER = [
   <>
@@ -36,6 +37,19 @@ export function SecurityPosture() {
     <DocSection id="security" lead="How the site is locked down, and what is checked on every scan.">
       <H3>Response headers</H3>
       <DataTable caption="Security response headers" columns={['Header', 'Value', 'Effect']} rows={SECURITY_HEADERS} />
+      <H3>Showing the site inside another page</H3>
+      <P>
+        By default no page may put this site in a frame, which is what stops another site from laying its own
+        buttons over yours. To embed it, for example as a preview on a portfolio, name the sites that may in{' '}
+        <C>.env</C> and restart: <C>self</C> and https origins, separated by spaces. A bare wildcard and plain http
+        origins are refused, and the container will not start with them.
+      </P>
+      <CodeSample title=".env" text={FRAMING_EXAMPLE} />
+      <P>
+        Visitors to the framing page see the sign-in page, like anyone else without an account. Name only sites you
+        control: if you are signed in and the framing site is on the same domain, it shows your live console inside
+        its page.
+      </P>
       <H3>Container</H3>
       <Bullets items={CONTAINER} />
       <H3>Front end</H3>

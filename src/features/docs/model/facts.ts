@@ -24,6 +24,9 @@ export const ENV_VARS: string[][] = [
   ],
 ];
 
+/** Set in .env next to docker-compose.yml. */
+export const FRAMING_EXAMPLE = 'FRAME_ANCESTORS=https://portfolio.example.com';
+
 /** Set in .env next to docker-compose.yml; they configure the console container. */
 export const CONSOLE_ENV_VARS: string[][] = [
   ['READ_ONLY_MODE', 'true', 'The console refuses every state-changing command, exactly as the MCP server does.'],
@@ -36,7 +39,7 @@ export const CONSOLE_ENV_VARS: string[][] = [
 export const SECURITY_HEADERS: string[][] = [
   ['Content-Security-Policy', "default-src 'none'; script, style, font and img from 'self' only", 'No inline script or style, no third-party origins, no framing.'],
   ['X-Content-Type-Options', 'nosniff', 'Stops MIME sniffing of scripts and styles.'],
-  ['X-Frame-Options', 'DENY', 'Clickjacking defence for browsers without frame-ancestors.'],
+  ['X-Frame-Options', 'DENY, unless a framing site is named', 'Clickjacking defence. Who may frame the site is the FRAME_ANCESTORS setting; nobody by default.'],
   ['Referrer-Policy', 'no-referrer', 'Outbound links leak nothing.'],
   ['Permissions-Policy', 'camera, microphone, geolocation, payment, usb: none', 'Powerful features are switched off.'],
   ['Cross-Origin-Opener-Policy', 'same-origin', 'Isolates the browsing context group.'],

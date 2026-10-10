@@ -31,6 +31,15 @@ RUN apk upgrade --no-cache
 
 COPY docker/nginx/security-headers.conf docker/nginx/auth-proxy.conf /etc/nginx/snippets/
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Who may frame the site is a setting. The entrypoint checks it, then renders
+# one small file from a template into /tmp, the container's only writable path.
+# Only the two variables that file needs are ever substituted.
+COPY --chmod=755 docker/nginx/12-frame-ancestors.envsh /docker-entrypoint.d/
+COPY docker/nginx/frame-policy.conf.template /etc/nginx/templates/
+ENV FRAME_ANCESTORS=none \
+    NGINX_ENVSUBST_OUTPUT_DIR=/tmp \
+    NGINX_ENVSUBST_FILTER="^(FRAME_ANCESTORS_CSP|X_FRAME_OPTIONS)$"
 COPY --from=build /app/dist /usr/share/nginx/html
 
 USER 101:101

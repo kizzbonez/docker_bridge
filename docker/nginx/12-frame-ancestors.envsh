@@ -1,0 +1,49 @@
+# Sourced by the nginx entrypoint before it renders the templates.
+#
+# FRAME_ANCESTORS says who may show this site inside a frame:
+#
+#   none                              nobody (the default)
+#   self                              this site's own pages
+#   https://portfolio.example.com     a site you name
+#
+# Several may be listed, separated by spaces. A leading "*." stands for any
+# subdomain: https://*.example.com.
+#
+# Anything else stops the container. In particular a bare wildcard and plain
+# http origins are refused: this site can read container logs, so it must only
+# ever be framed by a site you chose. Being strict here also means the value
+# can go into the nginx configuration as it is.
+
+frame_policy_fail() {
+  echo "FRAME_ANCESTORS: $1" >&2
+  echo "FRAME_ANCESTORS must be \"none\", or a space-separated list of \"self\" and https origins such as https://portfolio.example.com" >&2
+  exit 1
+}
+
+frame_policy_is_origin() {
+  printf '%s' "$1" | grep -Eq '^https://(\*\.)?[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+(:[0-9]{1,5})?$'
+}
+
+frame_policy_sources=""
+set -f # the value may contain "*": keep the shell from expanding it
+for frame_policy_source in ${FRAME_ANCESTORS:-none}; do
+  case "$frame_policy_source" in
+    none) frame_policy_source="'none'" ;;
+    self) frame_policy_source="'self'" ;;
+    *) frame_policy_is_origin "$frame_policy_source" || frame_policy_fail "\"$frame_policy_source\" is not allowed" ;;
+  esac
+  frame_policy_sources="${frame_policy_sources:+$frame_policy_sources }$frame_policy_source"
+done
+set +f
+
+case "$frame_policy_sources" in
+  "'none'") X_FRAME_OPTIONS="DENY" ;;
+  "'self'") X_FRAME_OPTIONS="SAMEORIGIN" ;;
+  *"'none'"*) frame_policy_fail "\"none\" cannot be combined with anything else" ;;
+  # The older header cannot express a list of sites. It is left out, and the
+  # Content-Security-Policy decides alone, as every current browser does anyway.
+  *) X_FRAME_OPTIONS="" ;;
+esac
+
+export FRAME_ANCESTORS_CSP="$frame_policy_sources"
+export X_FRAME_OPTIONS

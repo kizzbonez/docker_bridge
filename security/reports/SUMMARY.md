@@ -1,6 +1,6 @@
 # Security scan summary
 
-**Scanned:** 2026-10-10 · **Version:** 0.3.0 · **Tooling:** local secsuite stack, plus `npm audit`
+**Scanned:** 2026-10-10 · **Version:** 0.4.0 · **Tooling:** local secsuite stack, plus `npm audit`
 
 Every profile below passes the gate (no finding at HIGH or above) after the fixes described here. All of them
 were run again for 0.3.0, which added the live console and its service. The scanners found one new notice, a
@@ -71,6 +71,15 @@ What remains, and is accepted:
 How to narrow it further: set `DOCKER_BRIDGE_PROJECTS` so the console sees only the projects you name, set
 `CONSOLE_EXEC=false` so the browser can read but never run, put a second gate in front if the site is published,
 or start the stack with `--scale console=0` and no socket is mounted at all.
+
+## 0.4.0: framing can be allowed for named sites
+
+No page may frame this site by default, and that has not changed. `FRAME_ANCESTORS` now lets the operator name
+sites that may, so the site can be embedded as a preview. The setting is checked before nginx starts: only
+`self` and https origins are accepted, a bare wildcard is refused, and anything else stops the container, which
+also keeps the value from altering the nginx configuration it is written into. Whoever is allowed to frame the
+site can lay its own page over it, so only sites the operator controls belong in the list. The session cookie is
+`SameSite=Strict`: a framing page on another domain never sees a signed-in session, one on the same domain does.
 
 ## Found by review, not by a scanner
 
