@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { readFileSync } from 'node:fs';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -106,10 +107,14 @@ describe('the log on disk', () => {
   });
   afterEach(() => rm(dir, { recursive: true, force: true }));
 
+  it('has the record on disk by the time append returns', () => {
+    createActivityLog(dir).append(record({ ms: 7 }));
+    expect(readFileSync(join(dir, 'calls.jsonl'), 'utf8')).toContain('"ms":7');
+  });
+
   it('appends one line per call and reads the most recent back, oldest first', async () => {
     const log = createActivityLog(join(dir, 'nested'));
     for (let index = 0; index < 5; index += 1) log.append(record({ ms: index }));
-    await log.flush();
     const lines = (await readFile(join(dir, 'nested', 'calls.jsonl'), 'utf8')).trim().split('\n');
     expect(lines).toHaveLength(5);
     expect((await readActivity(join(dir, 'nested'), 3)).map((entry) => entry.ms)).toEqual([2, 3, 4]);
@@ -119,7 +124,6 @@ describe('the log on disk', () => {
     await writeFile(join(dir, 'calls.jsonl'), `${JSON.stringify(record({ ms: 1 }))}\n${' '.repeat(600 * 1024)}\n`);
     const log = createActivityLog(dir);
     log.append(record({ ms: 2 }));
-    await log.flush();
     expect((await readFile(join(dir, 'calls.jsonl'), 'utf8')).trim().split('\n')).toHaveLength(1);
     expect((await readActivity(dir, 10)).map((entry) => entry.ms)).toEqual([1, 2]);
   });
@@ -133,14 +137,12 @@ describe('the log on disk', () => {
   it('writes nothing when disabled, and never throws when it cannot write', async () => {
     const off = createActivityLog(null);
     off.append(record());
-    await off.flush();
     expect(await readActivity(dir, 10)).toEqual([]);
 
     // A file where the folder should be: every write fails.
     await writeFile(join(dir, 'blocked'), 'x');
     const blocked = createActivityLog(join(dir, 'blocked'));
-    blocked.append(record());
-    await expect(blocked.flush()).resolves.toBeUndefined();
+    expect(() => blocked.append(record())).not.toThrow();
   });
 
   it('is on by default, and can be moved or switched off', () => {

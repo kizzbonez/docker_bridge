@@ -47,4 +47,3 @@ const scope = config.projects ? `projects: ${config.projects.join(', ')}` : 'all
 log(`v${VERSION} ready · ${config.readOnly ? 'read-only' : 'READ_ONLY_MODE=false'} · ${scope} · ${config.socketPath}`);
 
 await serveStdio(dispatch, process.stdin, process.stdout);
-await activity.flush();

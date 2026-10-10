@@ -1,4 +1,5 @@
-import { appendFile, mkdir, open, rename, stat } from 'node:fs/promises';
+import { appendFileSync, mkdirSync, renameSync, statSync } from 'node:fs';
+import { open } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseRecord, type ActivityRecord } from './record.ts';
 
@@ -11,10 +12,12 @@ const MAX_READ_BYTES = 1024 * 1024;
 type Env = Record<string, string | undefined>;
 
 export interface ActivityLog {
-  /** Never throws and never delays a tool call: a log that cannot be written is skipped. */
+  /**
+   * Writes the record before returning, so it is on disk before the answer
+   * to the call leaves: a client that ends the server straight after its last
+   * call does not lose it. Never throws: a log that cannot be written is skipped.
+   */
   append(record: ActivityRecord): void;
-  /** Resolves once everything appended so far is on disk. */
-  flush(): Promise<void>;
 }
 
 /**
@@ -27,27 +30,32 @@ export function activityDirFrom(env: Env, fallback: string): string | null {
   return chosen !== '' ? chosen : fallback;
 }
 
-async function write(dir: string, record: ActivityRecord): Promise<void> {
-  await mkdir(dir, { recursive: true });
+function sizeOf(path: string): number {
+  try {
+    return statSync(path).size;
+  } catch {
+    return 0;
+  }
+}
+
+function write(dir: string, record: ActivityRecord): void {
+  mkdirSync(dir, { recursive: true });
   const current = join(dir, CURRENT);
-  const size = await stat(current).then(
-    (info) => info.size,
-    () => 0,
-  );
-  if (size > ROLL_AT_BYTES) await rename(current, join(dir, PREVIOUS));
-  await appendFile(current, `${JSON.stringify(record)}\n`, { mode: 0o644 });
+  if (sizeOf(current) > ROLL_AT_BYTES) renameSync(current, join(dir, PREVIOUS));
+  appendFileSync(current, `${JSON.stringify(record)}\n`, { mode: 0o644 });
 }
 
 /** An append-only JSON-lines log. Pass null for a log that records nothing. */
 export function createActivityLog(dir: string | null): ActivityLog {
-  let queue: Promise<void> = Promise.resolve();
   return {
     append(record) {
       if (dir === null) return;
-      // One write at a time, so lines never interleave; a failure is dropped.
-      queue = queue.then(() => write(dir, record)).catch(() => undefined);
+      try {
+        write(dir, record);
+      } catch {
+        // An unwritable log must never fail the call it describes.
+      }
     },
-    flush: () => queue,
   };
 }
 

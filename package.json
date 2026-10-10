@@ -1,6 +1,6 @@
 {
   "name": "dockerbridge-dashboard",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "DockerBridge MCP: a Model Context Protocol server for debugging containers with Claude Code, plus its dashboard and docs.",
   "type": "module",

@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-0.3.0-06b6d4">
-  <img alt="tests" src="https://img.shields.io/badge/tests-388%20unit%20%C2%B7%20157%20e2e-10b981">
+  <img alt="version" src="https://img.shields.io/badge/version-0.3.1-06b6d4">
+  <img alt="tests" src="https://img.shields.io/badge/tests-389%20unit%20%C2%B7%20157%20e2e-10b981">
   <img alt="clients" src="https://img.shields.io/badge/works%20with-any%20MCP%20client-38bdf8">
   <img alt="auth" src="https://img.shields.io/badge/sign--in-password%20%2B%20TOTP-38bdf8">
   <img alt="csp" src="https://img.shields.io/badge/CSP-no%20inline%2C%20self%20only-10b981">
@@ -341,7 +341,7 @@ npm run console        # second terminal: live data for the console page
 | Script | What it does |
 |---|---|
 | `npm run verify` | Typecheck, lint with size budgets, unit tests and a production build |
-| `npm run test` | Vitest: 388 unit and component tests, including the three services over real HTTP and stdio |
+| `npm run test` | Vitest: 389 unit and component tests, including the three services over real HTTP and stdio |
 | `npm run e2e` | Starts a throwaway stack, walks through onboarding, then runs 157 browser tests |
 | `npm run bridge` | The MCP server on stdio, as a client would launch it |
 | `npm run console` | The console API from source, for the dev server. No sign-in: never publish its port |

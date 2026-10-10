@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-10-10
+
+### Fixed
+
+- The MCP server now writes an activity record before the answer to the call leaves. It was written just after,
+  so a client that ended the server straight after its last call lost that call from the log. Found by calling
+  the released server once and looking for the record.
+
 ## [0.3.0] - 2026-10-10
 
 ### Added
@@ -110,6 +118,7 @@ Hardening applied before release, after scanning with secsuite (see `security/re
 - An anonymous request for anything that looks like a file is answered with 404 rather than a redirect to the
   sign-in page; only page requests are sent to sign-in.
 
+[0.3.1]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kizzbonez/docker_bridge/releases/tag/v0.1.0
