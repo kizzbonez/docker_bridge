@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { test as base, expect, type Page } from '@playwright/test';
 
 interface Fixtures {
@@ -35,6 +36,12 @@ export const test = base.extend<Fixtures>({
 });
 
 export { expect };
+
+/** Fails on any WCAG 2.1 A/AA or axe best-practice violation on the current page. */
+export async function expectAccessible(page: Page): Promise<void> {
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).analyze();
+  expect(results.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+}
 
 export const card = (page: Page, id: string) => page.getByTestId(`container-${id}`);
 export const terminal = (page: Page) => page.getByTestId('terminal-output');

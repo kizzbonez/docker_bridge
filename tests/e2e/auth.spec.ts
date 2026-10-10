@@ -1,6 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { expect, expectAccessible, test } from './fixtures';
 import { ANONYMOUS, freshCode, readAdmin, takeRecoveryCode, writeAdmin } from './support/state.ts';
 
 // Every test starts signed out, and the file runs in order: later tests change
@@ -26,12 +25,19 @@ async function signInWithRecoveryCode(page: Page, path = '/login/'): Promise<voi
 }
 
 test.describe('the sign-in wall', () => {
-  test('redirects anonymous requests for pages, assets and data to sign-in', async ({ request }) => {
-    for (const path of ['/', '/docs/', '/account/', '/brand/logo-mark.svg', '/screenshots/dashboard-hero.png']) {
+  test('sends anonymous page requests to sign-in and hides every protected file', async ({ request }) => {
+    for (const path of ['/', '/docs/', '/account/', '/docs/index.html']) {
       const response = await request.get(path, { maxRedirects: 0 });
       expect(response.status(), path).toBe(302);
       expect(response.headers()['location'], path).toBe(`/login/?next=${path}`);
       expect(response.headers()['cache-control']).toBe('no-store');
+    }
+    // Real files and scanner bait alike: a 404, never a redirect to a 200 page.
+    const files = ['/brand/logo-mark.svg', '/screenshots/dashboard-hero.png', '/assets/dashboard.js', '/backup.sql', '/settings.py', '/docker-compose.yml', '/wp-login.php'];
+    for (const path of files) {
+      const response = await request.get(path, { maxRedirects: 0 });
+      expect(response.status(), path).toBe(404);
+      expect(await response.text(), path).not.toContain('<div id="root">');
     }
     expect((await request.get('/auth/account')).status()).toBe(401);
     expect((await request.get('/auth/verify')).status()).toBe(404);
@@ -44,8 +50,7 @@ test.describe('the sign-in wall', () => {
     await page.goto('/login/', { waitUntil: 'networkidle' });
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Sign in to the console');
     expect(origins.size).toBe(1);
-    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice']).analyze();
-    expect(results.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+    await expectAccessible(page);
   });
 
   test('answers wrong credentials with one generic message', async ({ page }) => {
@@ -118,8 +123,7 @@ test.describe('account & security', () => {
     await expect(activity).toContainText('Setup completed');
     await expect(activity).toContainText('Recovery code used');
     await expect(activity).toContainText('Locked out');
-    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice']).analyze();
-    expect(results.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+    await expectAccessible(page);
   });
 
   test('signs out every other session', async ({ page }) => {

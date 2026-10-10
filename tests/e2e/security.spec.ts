@@ -1,16 +1,13 @@
-import AxeBuilder from '@axe-core/playwright';
 import { test as plain } from '@playwright/test';
-import { expect, test } from './fixtures';
+import { expect, expectAccessible, test } from './fixtures';
 
 const PAGES = ['/', '/docs/', '/account/'];
-const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
 test.describe('accessibility (axe)', () => {
   for (const path of PAGES) {
     test(`${path} has no WCAG A/AA violations`, async ({ page }) => {
       await page.goto(path);
-      const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
-      expect(results.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+      await expectAccessible(page);
     });
   }
 
@@ -19,8 +16,7 @@ test.describe('accessibility (axe)', () => {
     await page.getByRole('button', { name: 'Simulate Redis OOM Crash' }).click();
     await page.getByRole('button', { name: 'Skip to result' }).click();
     await page.getByRole('tab', { name: 'docker_safe_exec' }).click();
-    const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
-    expect(results.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+    await expectAccessible(page);
   });
 });
 
