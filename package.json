@@ -1,14 +1,15 @@
 {
   "name": "dockerbridge-dashboard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Interactive showcase dashboard for DockerBridge MCP, behind a two-factor sign-in portal.",
+  "description": "DockerBridge MCP: a Model Context Protocol server for debugging containers with Claude Code, plus its dashboard and docs.",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "bridge": "node bridge/index.ts",
     "build": "tsc -b && npm run build:bundles",
     "build:bundles": "vite build && vite build --config vite.portal.config.ts",
     "preview": "vite preview --host 127.0.0.1",

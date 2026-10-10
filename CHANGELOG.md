@@ -4,6 +4,34 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-10
+
+### Added
+
+- **The MCP server** (`bridge/`). The three tools now run against a real Docker Engine over a unix socket or
+  Windows named pipe, speaking MCP over stdio. Runs from source with Node, no dependencies, read-only by default.
+  Register it with `claude mcp add`.
+- `DOCKER_BRIDGE_PROJECTS` limits every tool to named compose projects.
+- Best-effort secret redaction on everything read from a container, and a per-line length cap in log output.
+- Cloudflare Tunnel support in nginx: the visitor address is taken from `CF-Connecting-IP`, so lockouts, rate
+  limits and the audit log are per visitor.
+
+### Changed
+
+- The tool schemas, exec policy, regex guard and log pipeline moved to `bridge/core`, shared by the server and the
+  dashboard's simulation.
+- The dashboard's setup section and the docs now register the server from the repository. The `npx` form remains
+  as an option for a published package.
+- `docker_safe_exec` reports a deadline rather than a kill: the bridge stops waiting and closes the stream.
+
+### Security
+
+- `env` with arguments is refused. It was on the allowlist, and `env sh -c ...` would have launched any program.
+- A deny rule now always wins. Previously the first matching rule decided, so a state-changing match could mask a
+  later deny.
+- Credential files, `/proc`, `/dev` and key material are refused; database clients may only connect to localhost;
+  `psql` is limited to reading SQL; redis commands are split into reads, writes and destructive ones.
+
 ## [0.1.0] - 2026-10-10
 
 First release.
@@ -41,4 +69,5 @@ Hardening applied before release, after scanning with secsuite (see `security/re
 - An anonymous request for anything that looks like a file is answered with 404 rather than a redirect to the
   sign-in page; only page requests are sent to sign-in.
 
+[0.2.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kizzbonez/docker_bridge/releases/tag/v0.1.0

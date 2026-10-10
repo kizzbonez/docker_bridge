@@ -3,12 +3,13 @@
 </p>
 
 <p align="center">
-  <b>The interactive dashboard and documentation for DockerBridge MCP</b><br>
-  a Model Context Protocol server that bridges Claude Code to the Docker Engine for live container debugging.
+  <b>DockerBridge MCP</b><br>
+  A Model Context Protocol server that lets Claude Code debug containers on your Docker Engine,<br>
+  with its interactive dashboard and documentation.
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-0.1.0-06b6d4">
+  <img alt="version" src="https://img.shields.io/badge/version-0.2.0-06b6d4">
   <img alt="tests" src="https://img.shields.io/badge/tests-237%20unit%20%C2%B7%20121%20e2e-10b981">
   <img alt="auth" src="https://img.shields.io/badge/sign--in-password%20%2B%20TOTP-38bdf8">
   <img alt="csp" src="https://img.shields.io/badge/CSP-no%20inline%2C%20self%20only-10b981">
@@ -16,7 +17,8 @@
 </p>
 
 <p align="center">
-  <a href="#quick-start">Quick start</a> ·
+  <a href="#the-mcp-server">MCP server</a> ·
+  <a href="#the-dashboard">Dashboard</a> ·
   <a href="#what-is-inside">What is inside</a> ·
   <a href="#sign-in-and-onboarding">Sign-in</a> ·
   <a href="#architecture">Architecture</a> ·
@@ -27,12 +29,48 @@
 
 ---
 
-> [!NOTE]
-> **This site is a showcase.** The container stack, logs, metrics and tool responses are simulated in the browser
-> by a mock of the server contract. Nothing here mounts or contacts a Docker socket. The package name
-> `@your-handle/docker-debug-mcp` in the configuration samples is a placeholder for your own published server.
+This repository holds two things:
 
-## Quick start
+- **The MCP server** (`bridge/`) — real. It talks to your local Docker Engine and gives Claude Code three tools.
+- **The dashboard** — its showcase and documentation. What it displays is **simulated**: fixture logs and
+  containers run through the server's own log pipeline and exec policy, in the browser. The site never contacts a
+  Docker socket.
+
+## The MCP server
+
+Three tools, built for an agent rather than a person at a terminal:
+
+| Tool | What it returns |
+|---|---|
+| `docker_get_stack_topology` | One compact graph of a compose project: services, health, restarts, CPU and memory, dependency edges |
+| `docker_tail_filtered_logs` | The tail of a log with ANSI stripped, filtered by regex, repeats collapsed, cut at a token budget |
+| `docker_safe_exec` | The output of one allowlisted diagnostic command, run as argv with a deadline. Never a shell |
+
+It runs straight from source with Node 22.18 or newer. There is nothing to build and it has no dependencies.
+
+```bash
+git clone https://github.com/kizzbonez/docker_bridge.git
+claude mcp add docker-debug-bridge --scope user \
+  -e READ_ONLY_MODE=true \
+  -- node /path/to/docker_bridge/bridge/index.ts
+```
+
+Then run `/mcp` in Claude Code to confirm three tools are connected, and ask something like *"orders return 502
+since the last deploy, find out why"*.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `READ_ONLY_MODE` | on | `docker_safe_exec` refuses every state-changing command. Only `false`, `0`, `no` or `off` turns it off |
+| `DOCKER_SOCKET_PATH` | `/var/run/docker.sock`, or `//./pipe/docker_engine` on Windows | The local engine to talk to. Remote engines are not supported |
+| `DOCKER_BRIDGE_PROJECTS` | unset | Comma-separated compose projects. When set, no tool can see anything outside them |
+
+**What it will not do.** There is no tool to start, stop, remove or create anything. Exec is limited to an
+allowlist of diagnostic binaries, spawned as argv: pipes, redirects and chaining are refused, as are credential
+files, non-local database connections and writing SQL. Output is redacted for secrets and clipped. It is a
+guardrail, not a sandbox: the Docker socket is root-equivalent, so the container's own permissions remain the real
+boundary.
+
+## The dashboard
 
 ```bash
 docker compose up -d --build
@@ -41,8 +79,12 @@ docker compose logs auth          # first start: prints the one-time setup token
 
 Open **http://127.0.0.1:8742**, paste the token, and follow the onboarding wizard. That is the whole install.
 
-The port is bound to `127.0.0.1`, so the site is reachable from this machine only. To publish it, put a reverse
-proxy or tunnel in front; do not change the bind address.
+The port is bound to `127.0.0.1`, so the site is reachable from this machine only. To publish it, keep that bind
+and point a tunnel at it: with Cloudflare Tunnel, add a public hostname whose service is
+`http://host.docker.internal:8742` (or `http://localhost:8742` if cloudflared runs on the host). Session cookies
+become `Secure` automatically over HTTPS, and lockouts use the visitor address Cloudflare reports. Leave Rocket
+Loader and automatic Web Analytics injection off for the hostname: the site's Content-Security-Policy refuses
+injected scripts.
 
 ## What is inside
 
@@ -135,17 +177,22 @@ flowchart LR
   network with no route to the internet.
 - **Two bundles.** The sign-in portal is built separately, so no dashboard code, image or document is reachable
   without a session.
-- **One source of truth.** The simulator, the playground and the docs call the same mock tools
-  (`src/mock-bridge`), and the browser imports the password policy from the auth service's own module.
+- **One source of truth.** The tool schemas, exec policy, regex guard and log pipeline live in `bridge/core`. The
+  MCP server enforces them; the simulator, the playground and the docs import the same files, so what the
+  dashboard shows is what the server does. The browser likewise imports the password policy from the auth service.
 
 ```
 docker_bridge/
 ├─ index.html · docs/ · account/   protected pages
 ├─ portal/                         sign-in + onboarding (the only public bundle)
+├─ bridge/                         the MCP server
+│  ├─ core/                        tool schemas, exec policy, log pipeline (shared with the dashboard)
+│  ├─ docker/                      Engine API client over socket or named pipe
+│  ├─ tools/ · mcp/                the three tools, the stdio protocol
 ├─ auth/                           sign-in service: TOTP, sessions, lockout, audit log
 ├─ src/
 │  ├─ features/                    one folder per section: model/ + ui/
-│  ├─ mock-bridge/                 the simulated MCP server (pure TypeScript)
+│  ├─ mock-bridge/                 the simulation: fixtures fed through bridge/core
 │  ├─ shared/                      ui primitives, hooks, lib
 │  └─ styles/                      design tokens and component layers
 ├─ docker/nginx/                   server config, security headers
@@ -173,9 +220,11 @@ npm run dev            # Vite on 127.0.0.1:5173 (no sign-in wall in dev)
 
 ## Testing
 
-- **Unit and component (Vitest)** — the mock MCP tools and guardrails, the simulator's playback reducer, every
-  widget, and the auth service end to end over HTTP: RFC 6238 test vectors, replay protection, lockout, session
-  expiry, CSRF and request hygiene.
+- **Unit and component (Vitest)** — the exec policy and its bypass attempts, the log pipeline, the simulator's
+  playback reducer, every widget, and the auth service end to end over HTTP: RFC 6238 test vectors, replay
+  protection, lockout, session expiry, CSRF and request hygiene.
+- **The MCP server** — its HTTP client is driven against a fake Docker Engine listening on a real pipe, and the
+  server itself is run as a child process and spoken to over stdio, the way Claude Code does.
 - **End to end (Playwright)** — against the real containers, at desktop and phone sizes: onboarding through the UI,
   two-factor sign-in, lockout, account changes, every dashboard interaction, WCAG A/AA checks with axe on every
   page, and the response headers. Every test fails on a console error, which includes any CSP violation.
@@ -197,16 +246,3 @@ The e2e and screenshot runs use their own compose project, port and volume, so t
 
 This project follows [Semantic Versioning](https://semver.org) and [Conventional Commits](https://www.conventionalcommits.org).
 Each release is a git tag (`vMAJOR.MINOR.PATCH`) with an entry in [CHANGELOG.md](CHANGELOG.md).
-
-## Using the real server with Claude Code
-
-The dashboard's setup section and the docs explain how an MCP server like this is registered. In short:
-
-```bash
-claude mcp add docker-debug-bridge \
-  -e DOCKER_SOCKET_PATH=/var/run/docker.sock \
-  -e READ_ONLY_MODE=false \
-  -- npx -y @your-handle/docker-debug-mcp
-```
-
-The Docker socket is root-equivalent. Start with `READ_ONLY_MODE=true`.
