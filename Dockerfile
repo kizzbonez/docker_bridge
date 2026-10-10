@@ -22,6 +22,11 @@ RUN npm run build:bundles
 # ---- web: nginx serving dist/ ------------------------------------------------
 FROM nginxinc/nginx-unprivileged:1.30.5-alpine-slim@sha256:3af0c10d960cc2502427fe1219c52989d309e7d65596869c60a34fd2fa2406f0 AS web
 
+# Pick up OS security patches released since the base image was built.
+# (Root for this step only; the image drops back to the nginx user below.)
+USER root
+RUN apk upgrade --no-cache
+
 COPY docker/nginx/security-headers.conf docker/nginx/auth-proxy.conf /etc/nginx/snippets/
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
@@ -38,6 +43,13 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 FROM node:24.21.0-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS auth
 ENV NODE_ENV=production
 WORKDIR /app
+
+# The service has no dependencies, so the package managers shipped in the base
+# image are dead weight, and their own bundled packages are where most of the
+# image's CVEs come from. Remove them, and take pending OS security patches.
+RUN apk upgrade --no-cache \
+ && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx \
+           /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-*
 
 COPY auth/ ./auth/
 # Account state lives on a volume mounted here; the service user must own it.
