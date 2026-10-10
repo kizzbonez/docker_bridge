@@ -79,10 +79,10 @@ describe('safeExec', () => {
     expect(result.stderr).toMatch(/^blocked:/);
   });
 
-  it('kills a command that overruns its timeout', () => {
+  it('stops waiting for a command that overruns its deadline', () => {
     const result = safeExec({ container: 'order-api', command: 'sleep 30', timeout_ms: 2000 }, true);
     expect(result).toMatchObject({ allowed: true, timed_out: true, exit_code: null, duration_ms: 2000 });
-    expect(result.stderr).toContain('SIGKILL');
+    expect(result.stderr).toBe('stopped waiting after 2000 ms (timeout_ms)');
   });
 
   it('lets a short sleep finish', () => {

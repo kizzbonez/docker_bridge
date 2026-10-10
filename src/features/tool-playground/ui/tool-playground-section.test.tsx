@@ -74,13 +74,13 @@ describe('ToolPlaygroundSection', () => {
     expect(status().getByText('ok')).toBeInTheDocument();
   });
 
-  it('kills a command that outlives its timeout', async () => {
+  it('stops waiting for a command that outlives its deadline', async () => {
     const user = userEvent.setup();
     render(<ToolPlaygroundSection />);
     await user.click(screen.getByRole('tab', { name: 'docker_safe_exec' }));
     await user.selectOptions(screen.getByLabelText('container'), 'order-api');
     await user.click(screen.getByRole('button', { name: 'sleep 30' }));
     expect(status().getByText('timed out')).toBeInTheDocument();
-    expect(payload('docker_safe_exec response')).toHaveTextContent('SIGKILL after 2000 ms');
+    expect(payload('docker_safe_exec response')).toHaveTextContent('stopped waiting after 2000 ms');
   });
 });

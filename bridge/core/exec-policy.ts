@@ -7,6 +7,9 @@
 
 export const MAX_COMMAND_LENGTH = 200;
 
+/** What a result says when a command outlived its deadline. */
+export const deadlineMessage = (timeoutMs: number): string => `stopped waiting after ${timeoutMs} ms (timeout_ms)`;
+
 /** Diagnostic binaries that may be spawned. Bare names only: no paths. */
 export const ALLOWED_BINARIES = [
   'cat',
@@ -60,9 +63,10 @@ const GENERAL_RULES: ExecRule[] = [
   },
   {
     binaries: ['sleep'],
-    test: /^sleep(?!\s+\d+(\.\d+)?\s*$)/,
+    // A silent process cannot be cut short from outside, so its length is capped here.
+    test: /^sleep(?!\s+(\d|[12]\d|30)(\.\d+)?\s*$)/,
     verdict: 'deny',
-    reason: 'sleep takes a single number of seconds',
+    reason: 'sleep takes a single number of seconds, 30 at most',
     example: 'sleep infinity',
   },
   {

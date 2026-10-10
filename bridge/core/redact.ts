@@ -5,7 +5,9 @@
 export const REDACTED = '«redacted»';
 
 const SECRET_WORD = 'pass(?:word|wd)?|secret|token|api[_-]?key|private[_-]?key|credential|access[_-]?key';
-const SECRET_NAME = new RegExp(`${SECRET_WORD}|auth|dsn|database_url|connection_?string|session`, 'i');
+// Names that hold credentials. Deliberately not "auth" or "session" alone:
+// AUTH_MAX_FAILURES or SESSION_TTL are settings worth being able to read.
+const SECRET_NAME = new RegExp(`${SECRET_WORD}|authorization|dsn|database_url|connection_?string|(^|_)keys?(_|$)`, 'i');
 
 // scheme://user:password@host
 const URL_CREDENTIALS = /([a-z][a-z0-9+.-]{1,20}:\/\/[^\s:/@]{1,80}):([^\s@/]{1,200})@/gi;

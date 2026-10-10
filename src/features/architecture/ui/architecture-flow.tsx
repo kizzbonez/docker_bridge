@@ -56,7 +56,7 @@ export function ArchitectureFlow() {
           highlight
           kicker="MCP server"
           name="DockerBridge"
-          points={['Policy gate: allowlist, deny rules, read-only mode', 'Log pipeline: tail → sanitize → match → dedupe → budget', 'Sandboxed exec with hard timeouts']}
+          points={['Policy gate: allowlist, deny rules, read-only mode', 'Log pipeline: tail → sanitize → match → dedupe → budget', 'Guarded exec with deadlines']}
         />
       </div>
       <Hop transport="unix socket" protocol="Docker Engine API" />

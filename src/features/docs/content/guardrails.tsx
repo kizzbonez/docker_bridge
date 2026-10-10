@@ -24,7 +24,8 @@ const ORDER = [
     A state-changing command passes only when <C>READ_ONLY_MODE</C> is <C>"false"</C>.
   </>,
   <>
-    Whatever survives runs as argv under <C>timeout_ms</C>; an overrun is killed and reported as <C>timed_out</C>.
+    Whatever survives runs as argv for at most <C>timeout_ms</C>. On an overrun the bridge closes the stream and reports{' '}
+    <C>timed_out</C>; SQL is also cancelled by the database through a statement timeout.
   </>,
 ];
 

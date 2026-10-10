@@ -92,14 +92,14 @@ const safeExec: ToolSpec = {
   name: 'docker_safe_exec',
   title: 'Guarded exec',
   description:
-    'Runs one allowlisted diagnostic command inside a container, as argv with a hard timeout. Never invokes a shell.',
+    'Runs one allowlisted diagnostic command inside a container, as argv with a deadline. Never invokes a shell.',
   inputSchema: {
     type: 'object',
     properties: {
       container,
       project,
       command: { type: 'string', maxLength: MAX_COMMAND_LENGTH, description: 'Binary and arguments, checked against the policy before it runs.' },
-      timeout_ms: { type: 'integer', minimum: 250, maximum: 10000, default: 2000, description: 'Deadline after which the process is killed.' },
+      timeout_ms: { type: 'integer', minimum: 250, maximum: 10000, default: 2000, description: 'How long to wait for the command before giving up on it.' },
     },
     required: ['container', 'command'],
     additionalProperties: false,

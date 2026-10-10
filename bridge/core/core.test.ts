@@ -93,7 +93,10 @@ describe('exec policy: closing the ways around the allowlist', () => {
     expect(refused('nginx -s reload', true)).toContain('READ_ONLY_MODE');
     expect(refused('nginx -s reload', false)).toBeNull();
     expect(refused('sleep infinity')).toContain('number of seconds');
+    expect(refused('sleep 3600')).toContain('30 at most');
+    expect(refused('sleep 31')).toContain('30 at most');
     expect(refused('sleep 2')).toBeNull();
+    expect(refused('sleep 30')).toBeNull();
   });
 
   it('lets a deny win even when a state-changing rule matches first', () => {
@@ -122,8 +125,13 @@ describe('redaction', () => {
   it('hides whole values in env output by variable name', () => {
     const output = 'PATH=/usr/bin\nDATABASE_URL=postgres://u:p@h/db\nJWT_SECRET=abc\nPORT=8080';
     expect(redactEnvLines(output)).toBe(`PATH=/usr/bin\nDATABASE_URL=${REDACTED}\nJWT_SECRET=${REDACTED}\nPORT=8080`);
-    expect(isSecretName('STRIPE_API_KEY')).toBe(true);
-    expect(isSecretName('NODE_ENV')).toBe(false);
+    for (const name of ['STRIPE_API_KEY', 'AWS_ACCESS_KEY_ID', 'SECRET_KEY_BASE', 'SIGNING_KEY', 'AUTH_SETUP_TOKEN', 'PGPASSWORD', 'SENTRY_DSN']) {
+      expect(isSecretName(name), name).toBe(true);
+    }
+    // Settings that merely mention auth or sessions stay readable.
+    for (const name of ['NODE_ENV', 'AUTH_MAX_FAILURES', 'AUTH_COOKIE_SECURE', 'SESSION_TTL_HOURS', 'KEYBOARD_LAYOUT', 'MONKEY_PATCH']) {
+      expect(isSecretName(name), name).toBe(false);
+    }
   });
 
   it('stays fast on a long unbroken string', () => {

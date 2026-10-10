@@ -14,8 +14,8 @@ export const GUARDRAILS: Guardrail[] = [
     body: 'Commands are spawned as argv. Pipes, redirects, substitutions and chaining are rejected before anything runs.',
   },
   {
-    title: 'Hard timeouts',
-    body: 'Every exec carries a deadline. A command that overruns is killed and reported, not awaited.',
+    title: 'Deadlines',
+    body: 'Every exec carries a deadline. A command that overruns is cut off and reported, never awaited.',
   },
   {
     title: 'Budgeted output',
