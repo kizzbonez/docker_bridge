@@ -9,9 +9,10 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-0.3.1-06b6d4">
+  <img alt="version" src="https://img.shields.io/badge/version-0.3.2-06b6d4">
   <img alt="tests" src="https://img.shields.io/badge/tests-389%20unit%20%C2%B7%20157%20e2e-10b981">
   <img alt="clients" src="https://img.shields.io/badge/works%20with-any%20MCP%20client-38bdf8">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-10b981">
   <img alt="auth" src="https://img.shields.io/badge/sign--in-password%20%2B%20TOTP-38bdf8">
   <img alt="csp" src="https://img.shields.io/badge/CSP-no%20inline%2C%20self%20only-10b981">
   <img alt="stack" src="https://img.shields.io/badge/React%2019%20%C2%B7%20Vite%208%20%C2%B7%20Tailwind%204-0f172a">
@@ -25,7 +26,8 @@
   <a href="#architecture">Architecture</a> ·
   <a href="#testing">Testing</a> ·
   <a href="#security">Security</a> ·
-  <a href="#versioning">Versioning</a>
+  <a href="#versioning">Versioning</a> ·
+  <a href="#license">License</a>
 </p>
 
 ---
@@ -385,3 +387,11 @@ throwaway project, so they never touch or reveal a real install.
 
 This project follows [Semantic Versioning](https://semver.org) and [Conventional Commits](https://www.conventionalcommits.org).
 Each release is a git tag (`vMAJOR.MINOR.PATCH`) with an entry in [CHANGELOG.md](CHANGELOG.md).
+
+## License
+
+[MIT](LICENSE). You may use, change and redistribute this, including commercially, as long as the copyright and
+licence notice stay with it. It comes with no warranty.
+
+The fonts and libraries bundled into the built site keep their own licences: see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

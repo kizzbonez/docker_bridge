@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-10-10
+
+### Added
+
+- An MIT licence, and `THIRD_PARTY_NOTICES.md` listing what the built site bundles (React, uqr, Tailwind CSS and
+  three fonts under the SIL Open Font License) with their licences. Earlier tags carry no licence file.
+
 ## [0.3.1] - 2026-10-10
 
 ### Fixed
@@ -118,6 +125,7 @@ Hardening applied before release, after scanning with secsuite (see `security/re
 - An anonymous request for anything that looks like a file is answered with 404 rather than a redirect to the
   sign-in page; only page requests are sent to sign-in.
 
+[0.3.2]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/kizzbonez/docker_bridge/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/kizzbonez/docker_bridge/compare/v0.1.0...v0.2.0
