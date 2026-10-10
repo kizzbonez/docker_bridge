@@ -40,6 +40,15 @@ test.describe('the sign-in wall', () => {
       expect(await response.text(), path).not.toContain('<div id="root">');
     }
     expect((await request.get('/auth/account')).status()).toBe(401);
+
+    // The console API holds the Docker socket: without a session it answers 401, never data.
+    for (const path of ['/api/engine', '/api/activity', '/api/healthz']) {
+      const response = await request.get(path, { maxRedirects: 0 });
+      expect(response.status(), path).toBe(401);
+      expect(await response.json(), path).toEqual({ error: 'unauthenticated' });
+    }
+    const call = await request.post('/api/tools/call', { data: { name: 'docker_safe_exec', arguments: { container: 'auth', command: 'env' } } });
+    expect(call.status()).toBe(401);
     expect((await request.get('/auth/verify')).status()).toBe(404);
     expect((await request.get('/portal/index.html')).status()).toBe(404);
   });
@@ -118,7 +127,7 @@ test.describe('signing in', () => {
   test('never follows an off-site "next"', async ({ page }) => {
     await signInWithRecoveryCode(page, '/login/?next=//evil.example/steal');
     await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Autonomous Container Diagnostics');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your Docker Engine, as your agents see it.');
   });
 
   test('signing out ends the session', async ({ page }) => {

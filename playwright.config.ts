@@ -5,11 +5,11 @@ import { BASE_URL, STORAGE_FILE } from './tests/e2e/support/state.ts';
 // so it exercises the real containers: nginx, the auth service, headers and CSP.
 //
 //   setup    runs the onboarding wizard on the fresh install and keeps the session
-//   desktop  ┐ the dashboard and docs, signed in, at two viewport sizes
+//   desktop  ┐ the console, showcase and docs, signed in, at two viewport sizes
 //   mobile   ┘
 //   account  sign-in, lockout and account changes; last, because it ends sessions
 const desktop = { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } };
-const SIGNED_IN = /(dashboard|simulator|widgets|docs|security)\.spec\.ts/;
+const SIGNED_IN = /(console|showcase|simulator|widgets|docs|security)\.spec\.ts/;
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -17,7 +17,12 @@ export default defineConfig({
   globalTeardown: './tests/e2e/support/global-teardown.ts',
   fullyParallel: true,
   forbidOnly: true,
-  retries: 0,
+  // The console tests read a real Docker Engine while several browsers render
+  // at once. Four workers keep the machine responsive enough for that, and one
+  // retry absorbs a stall of the engine without hiding it: Playwright reports
+  // such a test as flaky.
+  workers: 4,
+  retries: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: BASE_URL,

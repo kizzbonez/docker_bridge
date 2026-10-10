@@ -87,7 +87,7 @@ describe('PortalApp onboarding', () => {
     await user.click(screen.getByRole('button', { name: 'Verify and create account' }));
 
     expect(await screen.findByText('AAAAA-BBBBB')).toBeInTheDocument();
-    const open = screen.getByRole('button', { name: 'Open the dashboard' });
+    const open = screen.getByRole('button', { name: 'Open the console' });
     expect(open).toBeDisabled();
     await user.click(screen.getByLabelText('I have stored my recovery codes'));
     await user.click(open);

@@ -13,6 +13,25 @@ describe('POST /api/tools/call', () => {
     ]);
   });
 
+  it('reads a project once for every page watching it', async () => {
+    const app = await boot();
+    const replies = await Promise.all([1, 2, 3, 4].map(() => tool(app, 'docker_get_stack_topology', { project: 'shop' })));
+    for (const reply of replies) expect((await json(reply)).structured.services).toHaveLength(2);
+    expect(app.fake.requests.filter((line) => line.startsWith('GET /containers/json'))).toHaveLength(1);
+
+    // A different question is a different reading.
+    await tool(app, 'docker_get_stack_topology', { project: 'docker-bridge' });
+    expect(app.fake.requests.filter((line) => line.startsWith('GET /containers/json'))).toHaveLength(2);
+  });
+
+  it('asks again after a reading that failed', async () => {
+    const app = await boot();
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      expect((await json(await tool(app, 'docker_get_stack_topology', { project: 'nope' }))).isError).toBe(true);
+    }
+    expect(app.fake.requests.filter((line) => line.startsWith('GET /containers/json'))).toHaveLength(2);
+  });
+
   it('filters a real log, and reports what the raw tail would have cost', async () => {
     const body = await json(await tool(await boot(), 'docker_tail_filtered_logs', { container: 'web', project: 'shop', filter_pattern: 'error' }));
     expect(body.structured).toMatchObject({ container: 'shop-web-1', scanned_lines: 3, matched_lines: 1, lines: [{ text: '[error] upstream refused' }] });

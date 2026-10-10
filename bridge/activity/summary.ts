@@ -1,14 +1,6 @@
-import type { ActivityRecord } from './record.ts';
+import type { ActivityRecord, ActivityTotals } from '../core/activity-types.ts';
 
-export interface ActivityTotals {
-  calls: number;
-  refused: number;
-  failed: number;
-  /** Log tails only: what the raw tails would have cost against what was returned. */
-  tokens: { raw: number; returned: number; saved: number };
-  /** Distinct clients seen, most recent first. */
-  clients: string[];
-}
+export type { ActivityTotals };
 
 export function summarize(records: ActivityRecord[]): ActivityTotals {
   const tokens = { raw: 0, returned: 0, saved: 0 };

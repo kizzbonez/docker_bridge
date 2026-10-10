@@ -1,24 +1,7 @@
-import type { ReactNode } from 'react';
 import type { ContainerState } from '@/mock-bridge/types';
 import { MeterBar } from '@/shared/ui/meter-bar';
+import { MetricRow } from '@/shared/ui/metric-row';
 import { cpuTone, memoryTone } from './health';
-
-interface MetricRowProps {
-  label: string;
-  value: string;
-  children: ReactNode;
-}
-
-// One <dt> with two <dd>s (reading + gauge) directly inside the group: valid <dl> content.
-function MetricRow({ label, value, children }: MetricRowProps) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
-      <dt className="text-ink-mute">{label}</dt>
-      <dd className="text-ink-dim tabular-nums">{value}</dd>
-      <dd className="w-full">{children}</dd>
-    </div>
-  );
-}
 
 /** CPU % and memory-vs-limit gauges for one container. */
 export function ContainerMetrics({ container }: { container: ContainerState }) {

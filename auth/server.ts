@@ -1,6 +1,7 @@
 import { createApp } from './app.ts';
 import { loadConfig } from './config.ts';
 import { createContext } from './context.ts';
+import { closeOnSignal } from './http.ts';
 
 const RULE = '─'.repeat(64);
 
@@ -30,10 +31,4 @@ server.listen(config.port, config.host, () => {
   console.log(JSON.stringify({ level: 'info', message: 'auth service listening', port: config.port }));
 });
 
-for (const signal of ['SIGTERM', 'SIGINT'] as const) {
-  process.on(signal, () => {
-    server.close(() => process.exit(0));
-    // Do not let a stuck connection block shutdown.
-    setTimeout(() => process.exit(0), 3_000).unref();
-  });
-}
+closeOnSignal(server);

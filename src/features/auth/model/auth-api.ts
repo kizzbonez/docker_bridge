@@ -1,3 +1,5 @@
+import { jsonRequest } from '@/shared/lib/json-request';
+
 /** Typed client for the auth service. Every call is same-origin and cookie-based. */
 
 export interface AuthStatus {
@@ -59,16 +61,9 @@ export class AuthApiError extends Error {
 }
 
 async function request<T>(method: 'GET' | 'POST', path: string, body?: object): Promise<T> {
-  const response = await fetch(path, {
-    method,
-    credentials: 'same-origin',
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (response.status === 204) return undefined as T;
-  const data: unknown = await response.json().catch(() => ({}));
-  if (!response.ok) throw new AuthApiError(response.status, data as ErrorBody);
-  return data as T;
+  const reply = await jsonRequest(method, path, body);
+  if (!reply.ok) throw new AuthApiError(reply.status, reply.data as ErrorBody);
+  return reply.data as T;
 }
 
 const post = <T>(path: string, body: object = {}): Promise<T> => request<T>('POST', path, body);

@@ -26,7 +26,7 @@ function sameSite(handler: Handler): Handler {
 const ROUTES: Record<string, Handler> = {
   // For the container health check only; nginx never forwards it without a session.
   'GET /api/healthz': async () => ({ ok: true }),
-  'GET /api/engine': signedIn((_req, ctx) => engineSummary(ctx)),
+  'GET /api/engine': signedIn((_req, ctx) => ctx.summaries('engine', () => engineSummary(ctx))),
   'GET /api/activity': signedIn((_req, ctx) => ctx.activity.read()),
   'POST /api/tools/call': sameSite(signedIn(async (req, ctx) => toolsCall(ctx, await readJson(req)))),
 };

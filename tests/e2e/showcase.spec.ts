@@ -1,15 +1,16 @@
 import { card, expect, test } from './fixtures';
 
-test.describe('dashboard shell', () => {
+test.describe('showcase shell', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/showcase/');
   });
 
   test('shows the system status bar and the hero', async ({ page }) => {
-    await expect(page).toHaveTitle(/DockerBridge MCP/);
+    await expect(page).toHaveTitle('Showcase — DockerBridge MCP');
     const status = page.getByRole('region', { name: 'System status' });
     await expect(status).toContainText('MCP Server: ACTIVE (stdio: /var/run/docker.sock)');
     await expect(status).toContainText('Protocol: MCP v1.0');
+    await expect(status).toContainText('simulated data');
     await expect(status.getByTestId('latency')).toHaveText(/^\d+ms$/);
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Autonomous Container Diagnostics for Agentic Workflows');
@@ -65,9 +66,9 @@ test.describe('dashboard shell', () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  test('links to the documentation', async ({ page }) => {
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Docs' }).click();
-    await expect(page).toHaveURL(/\/docs\/$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Documentation' })).toBeVisible();
+  test('links back to the live console', async ({ page }) => {
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Console' }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your Docker Engine, as your agents see it.');
   });
 });

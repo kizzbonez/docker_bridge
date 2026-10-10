@@ -3,7 +3,7 @@ import { expect, test } from './fixtures';
 
 test.describe('token economy', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#economy');
+    await page.goto('/showcase/#economy');
   });
 
   test('compares raw logs with the bridge for the default incident', async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe('token economy', () => {
 
 test.describe('tool playground', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#tools');
+    await page.goto('/showcase/#tools');
   });
 
   test('exposes parameters, schema and sample output for each tool', async ({ page }) => {
@@ -101,7 +101,7 @@ test.describe('tool playground', () => {
 
 test.describe('setup', () => {
   test('copies the configuration for each target', async ({ page }) => {
-    await page.goto('/#setup');
+    await page.goto('/showcase/#setup');
     const config = page.getByTestId('config-card');
     await expect(config).toContainText('"mcpServers"');
     await config.getByRole('button', { name: 'Copy' }).click();

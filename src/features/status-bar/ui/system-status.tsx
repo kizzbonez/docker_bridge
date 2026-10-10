@@ -13,8 +13,8 @@ function useLatency(): number {
 }
 
 /**
- * Full system readout, shown once at the very top of the page. The server is
- * simulated, which the last pill says plainly.
+ * The showcase's system readout, shown once at the very top of the page. The
+ * server is simulated, which the last pill says plainly.
  */
 export function SystemStrip() {
   const latency = useLatency();
@@ -40,17 +40,14 @@ export function SystemStrip() {
   );
 }
 
-/** Compact live indicator that stays in the sticky bar while scrolling (desktop only). */
+/** Compact indicator that stays in the sticky bar while scrolling. */
 export function LivePill() {
   const latency = useLatency();
-  // The wrapper carries the breakpoint: Badge sets its own display, which would win over `hidden`.
   return (
-    <span className="hidden lg:block">
-      <Badge tone="ok">
-        <StatusDot tone="ok" ping />
-        MCP ACTIVE
-        <span className="text-ink-mute tabular-nums">{latency}ms</span>
-      </Badge>
-    </span>
+    <Badge tone="ok">
+      <StatusDot tone="ok" ping />
+      MCP ACTIVE
+      <span className="text-ink-mute tabular-nums">{latency}ms</span>
+    </Badge>
   );
 }

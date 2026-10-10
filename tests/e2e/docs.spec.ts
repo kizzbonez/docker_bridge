@@ -7,8 +7,9 @@ const SECTIONS = [
   'Tools reference',
   'Guardrails',
   'Log pipeline',
-  'Dashboard tour',
-  'Run the dashboard',
+  'Live console',
+  'Tour',
+  'Run the stack',
   'Sign-in & onboarding',
   'Security posture',
   'Project layout',
@@ -54,7 +55,7 @@ test.describe('documentation page', () => {
 
   test('tour screenshots load', async ({ page }) => {
     const images = page.getByTestId('tour').getByRole('img');
-    await expect(images).toHaveCount(6);
+    await expect(images).toHaveCount(10);
     for (const image of await images.all()) {
       await image.scrollIntoViewIfNeeded();
       await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth)).toBeGreaterThan(1000);
@@ -72,9 +73,10 @@ test.describe('documentation page', () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  test('links back to the dashboard', async ({ page }) => {
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard' }).click();
+  test('shows the real engine in its status bar, and links back to the console', async ({ page }) => {
+    await expect(page.getByRole('region', { name: 'Engine status' })).toContainText(/Docker Engine \d+\./, { timeout: 20_000 });
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Console' }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Autonomous Container Diagnostics');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your Docker Engine, as your agents see it.');
   });
 });

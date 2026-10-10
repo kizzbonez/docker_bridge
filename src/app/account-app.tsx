@@ -4,8 +4,9 @@ import { PasswordPanel } from '@/features/account/ui/password-panel';
 import { RecoveryPanel } from '@/features/account/ui/recovery-panel';
 import { SessionsPanel } from '@/features/account/ui/sessions-panel';
 import { SummaryPanel } from '@/features/account/ui/summary-panel';
+import { LiveStatusBar } from '@/features/console/ui/live-status-bar';
 import { SiteFooter } from '@/features/footer/ui/site-footer';
-import { DOCS_LINKS, StatusBar } from '@/features/status-bar/ui/status-bar';
+import { DOCS_LINKS } from '@/features/status-bar/ui/status-bar';
 import { Atmosphere } from '@/shared/ui/atmosphere';
 import { SkipLink } from './skip-link';
 
@@ -37,7 +38,7 @@ export function AccountApp() {
     <>
       <Atmosphere />
       <SkipLink />
-      <StatusBar links={DOCS_LINKS} />
+      <LiveStatusBar links={DOCS_LINKS} />
       <main id="main" className="mx-auto w-full max-w-7xl px-4 pt-12 pb-16 sm:px-6">
         <header className="mb-8 max-w-3xl">
           <p className="eyebrow">

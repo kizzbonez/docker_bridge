@@ -71,7 +71,8 @@ function present(output: string, argv: string[]): string {
   return clip(redactSecrets(byName).trimEnd(), MAX_OUTPUT_CHARS);
 }
 
-const refusal = (container: string, guardrail: string): Record<string, unknown> => ({
+/** What the tool answers when a command is not allowed to run, whoever decided so. */
+export const refusal = (container: string, guardrail: string): Record<string, unknown> => ({
   container,
   allowed: false,
   guardrail,

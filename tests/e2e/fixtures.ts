@@ -6,9 +6,13 @@ interface Fixtures {
   problems: string[];
 }
 
-// The auth API answers bad credentials with 4xx by design; those are asserted
-// on explicitly by the tests that provoke them.
-const isAuthApi = (url: string): boolean => new URL(url).pathname.startsWith('/auth/');
+// Answers that tests provoke on purpose and assert on explicitly: the auth API
+// refusing bad credentials, and the console's tool endpoint refusing bad
+// arguments. Every other request, including the rest of /api/, must succeed.
+const isAuthApi = (url: string): boolean => {
+  const { pathname } = new URL(url);
+  return pathname.startsWith('/auth/') || pathname === '/api/tools/call';
+};
 
 /**
  * Every test fails if the page logs an error. Chromium reports CSP violations
@@ -40,7 +44,8 @@ export { expect };
 /** Fails on any WCAG 2.1 A/AA or axe best-practice violation on the current page. */
 export async function expectAccessible(page: Page): Promise<void> {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).analyze();
-  expect(results.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+  const where = (violation: (typeof results.violations)[number]): string => violation.nodes.map((node) => node.target.join(' ')).slice(0, 3).join(' | ');
+  expect(results.violations.map((violation) => `${violation.id}: ${violation.help} [${where(violation)}]`)).toEqual([]);
 }
 
 export const card = (page: Page, id: string) => page.getByTestId(`container-${id}`);

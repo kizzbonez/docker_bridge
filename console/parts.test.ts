@@ -6,6 +6,7 @@ import { containerId } from '../bridge/test-support/fake-engine.ts';
 import { loadConsoleConfig } from './config.ts';
 import { createSelfLookup } from './self.ts';
 import { createSessionCheck } from './session.ts';
+import { createSharedReadings } from './shared-readings.ts';
 import { SELF, fakeEngine, listen } from './test-harness.ts';
 
 describe('the session check', () => {
@@ -81,5 +82,51 @@ describe('configuration', () => {
     expect(config).toMatchObject({ selfId: null, execEnabled: false, port: 9000, authUrl: null, activityDir: null });
     expect(config.bridge.readOnly).toBe(false);
     expect(loadConsoleConfig({ CONSOLE_PORT: '99999' }).port).toBe(8082);
+  });
+});
+
+describe('shared readings', () => {
+  const deferred = () => {
+    let resolve: (value: string) => void = () => undefined;
+    const promise = new Promise<string>((done) => (resolve = done));
+    return { promise, resolve };
+  };
+
+  it('answers everyone asking the same thing with one reading', async () => {
+    let clock = 0;
+    const share = createSharedReadings<string>(4000, () => true, () => clock);
+    const first = deferred();
+    let loads = 0;
+    const load = () => {
+      loads += 1;
+      return first.promise;
+    };
+    const waiting = [share('shop', load), share('shop', load), share('shop', load)];
+    first.resolve('reading 1');
+    expect(await Promise.all(waiting)).toEqual(['reading 1', 'reading 1', 'reading 1']);
+    expect(loads).toBe(1);
+
+    clock = 3999;
+    expect(await share('shop', async () => 'never asked')).toBe('reading 1');
+    clock = 4000;
+    expect(await share('shop', async () => 'reading 2')).toBe('reading 2');
+    expect(await share('blog', async () => 'another project')).toBe('another project');
+  });
+
+  it('never serves a failure to the next caller', async () => {
+    const share = createSharedReadings<string>(4000, (value) => value !== 'engine timed out', () => 0);
+    expect(await share('shop', async () => 'engine timed out')).toBe('engine timed out');
+    expect(await share('shop', async () => 'recovered')).toBe('recovered');
+
+    await expect(share('blog', () => Promise.reject(new Error('boom')))).rejects.toThrow('boom');
+    expect(await share('blog', async () => 'fine now')).toBe('fine now');
+  });
+
+  it('does not grow without bound', async () => {
+    const share = createSharedReadings<string>(4000, () => true, () => 0);
+    for (let index = 0; index < 100; index += 1) await share(`project-${index}`, async () => 'x');
+    // The oldest question was dropped to make room, so it is asked again.
+    expect(await share('project-0', async () => 'asked again')).toBe('asked again');
+    expect(await share('project-99', async () => 'never asked')).toBe('x');
   });
 });

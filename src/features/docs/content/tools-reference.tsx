@@ -48,7 +48,7 @@ export function ToolsReference() {
         <ToolReference key={name} name={name} />
       ))}
       <P>
-        Want to change the inputs? The <a href="/#tools" className="text-cyan-300 underline underline-offset-4 hover:text-cyan-400">playground</a> recomputes
+        Want to change the inputs? The <a href="/showcase/#tools" className="text-cyan-300 underline underline-offset-4 hover:text-cyan-400">playground</a> recomputes
         the request and response as you type.
       </P>
     </DocSection>

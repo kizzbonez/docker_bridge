@@ -1,7 +1,8 @@
 import { BrandLockup } from '@/shared/ui/brand-lockup';
 
 const LINKS = [
-  { href: '/', label: 'Dashboard' },
+  { href: '/', label: 'Console' },
+  { href: '/showcase/', label: 'Showcase' },
   { href: '/docs/', label: 'Documentation' },
   { href: '/docs/#guardrails', label: 'Guardrails' },
   { href: '/docs/#tools-reference', label: 'Tool reference' },
@@ -15,8 +16,9 @@ export function SiteFooter() {
         <div className="max-w-md">
           <BrandLockup />
           <p className="mt-4 text-sm leading-relaxed text-ink-dim">
-            This page is a showcase. Containers, logs, metrics and tool responses are simulated in your browser; the
-            dashboard never mounts or contacts a Docker socket.
+            An MCP server that lets an agent debug containers, with a live console for the engine on this machine.
+            The console is real. The showcase is a simulation: its containers, logs and tool responses are made up
+            in your browser.
           </p>
         </div>
         <nav aria-label="Footer">

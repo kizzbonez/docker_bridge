@@ -64,13 +64,13 @@ test.describe('first-run onboarding', () => {
     const codes = page.getByTestId('recovery-codes').getByRole('listitem');
     await expect(codes).toHaveCount(10);
     const recoveryCodes = await codes.allTextContents();
-    const open = page.getByRole('button', { name: 'Open the dashboard' });
+    const open = page.getByRole('button', { name: 'Open the console' });
     await expect(open).toBeDisabled();
     await page.getByLabel('I have stored my recovery codes').check();
     await open.click();
 
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Autonomous Container Diagnostics');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your Docker Engine, as your agents see it.');
     await expect(page.getByTestId('session-menu')).toContainText(USERNAME);
 
     await page.context().storageState({ path: STORAGE_FILE });

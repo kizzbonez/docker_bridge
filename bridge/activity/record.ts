@@ -1,27 +1,8 @@
 import { estimateTokens } from '../core/text.ts';
+import { ACTIVITY_OUTCOMES, type ActivityOutcome, type ActivityRecord } from '../core/activity-types.ts';
 import type { CallReport } from '../tools/call.ts';
 
-export const ACTIVITY_OUTCOMES = ['ok', 'refused', 'error', 'invalid'] as const;
-export type ActivityOutcome = (typeof ACTIVITY_OUTCOMES)[number];
-
-/**
- * One tool call, as kept in the activity log. It says who asked for what and
- * how it went. It never holds what the tool returned.
- */
-export interface ActivityRecord {
-  at: string;
-  /** The MCP client's own name and version, e.g. "claude-code 2.1.0". */
-  client: string;
-  tool: string;
-  /** The container or compose project the call was aimed at. */
-  target: string;
-  /** The command or filter pattern, clipped. */
-  detail: string;
-  outcome: ActivityOutcome;
-  ms: number;
-  /** `raw` is what the unfiltered log tail would have cost; null for tools that filter nothing. */
-  tokens: { raw: number | null; returned: number };
-}
+export type { ActivityOutcome, ActivityRecord };
 
 const MAX_CLIENT = 60;
 const MAX_TARGET = 140;

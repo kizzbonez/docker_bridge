@@ -13,6 +13,7 @@
 //   CONSOLE_EXEC                "false" to refuse every exec from the browser
 //   DOCKER_BRIDGE_PROJECTS      comma-separated compose projects to limit the console to
 //   DOCKER_BRIDGE_ACTIVITY_DIR  where the MCP server's activity log is mounted
+import { closeOnSignal } from '../auth/http.ts';
 import { VERSION } from '../bridge/version.ts';
 import { createApp } from './app.ts';
 import { loadConsoleConfig } from './config.ts';
@@ -40,10 +41,4 @@ server.listen(config.port, config.host, () => {
   });
 });
 
-for (const signal of ['SIGTERM', 'SIGINT'] as const) {
-  process.on(signal, () => {
-    server.close(() => process.exit(0));
-    // Do not let a stuck connection block shutdown.
-    setTimeout(() => process.exit(0), 3_000).unref();
-  });
-}
+closeOnSignal(server);

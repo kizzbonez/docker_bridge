@@ -6,10 +6,14 @@ import { C, H3, P } from '../ui/prose';
 
 const COMPOSE = `docker compose up -d --build
 docker compose logs auth     # first start: the one-time setup token
-# then open ${DASHBOARD_URL} and follow the onboarding wizard`;
+# then open ${DASHBOARD_URL} and follow the onboarding wizard
+
+# the same site with no Docker access: showcase and docs only
+docker compose up -d --build --scale console=0`;
 
 const LOCAL = `npm install
-npm run dev`;
+npm run dev          # the site
+npm run console      # in a second terminal: live data for the console page`;
 
 const SCANS = `# static analysis: semgrep, trivy, gitleaks, checkov
 docker exec security-suite-worker-1 python -m secsuite \\
@@ -23,7 +27,7 @@ docker exec security-suite-worker-1 python -m secsuite \\
 
 export function RunDashboard() {
   return (
-    <DocSection id="run-dashboard" lead="Two hardened containers: nginx serving the static site, and a small sign-in service it consults before serving anything.">
+    <DocSection id="run-dashboard" lead="Three hardened containers: nginx serving the site, a small sign-in service it consults before serving anything, and the console service that reads the Docker Engine.">
       <H3>With Docker</H3>
       <CodeSample title="shell" text={COMPOSE} />
       <P>
@@ -35,6 +39,7 @@ export function RunDashboard() {
       <CodeSample title="shell" text={LOCAL} />
       <P>
         The dev server has no sign-in wall: that is enforced by nginx and the auth service, which only run in Docker.
+        For the same reason, never publish the port <C>npm run console</C> listens on: it answers without a session.
       </P>
       <DataTable caption="npm scripts" columns={['Script', 'What it does']} rows={NPM_SCRIPTS} />
 

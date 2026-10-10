@@ -72,7 +72,7 @@ export function RecoveryStep({ codes }: { codes: string[] }) {
         I have stored my recovery codes
       </label>
       <Button variant="primary" className="w-full" disabled={!saved} onClick={() => navigate('/')}>
-        Open the dashboard
+        Open the console
       </Button>
     </div>
   );

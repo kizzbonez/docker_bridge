@@ -24,11 +24,13 @@ export default defineConfig({
     sourcemap: false,
     // Never inline assets as data: URIs, so the CSP can stay at 'self' only.
     assetsInlineLimit: 0,
-    // Protected pages: dashboard at /, docs at /docs/, account at /account/.
+    // Protected pages: the console at /, the showcase at /showcase/, docs at
+    // /docs/ and the account page at /account/.
     // The public sign-in portal is a separate build: see vite.portal.config.ts.
     rolldownOptions: {
       input: {
-        dashboard: fileURLToPath(new URL('./index.html', import.meta.url)),
+        console: fileURLToPath(new URL('./index.html', import.meta.url)),
+        showcase: fileURLToPath(new URL('./showcase/index.html', import.meta.url)),
         docs: fileURLToPath(new URL('./docs/index.html', import.meta.url)),
         account: fileURLToPath(new URL('./account/index.html', import.meta.url)),
       },

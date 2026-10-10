@@ -110,6 +110,17 @@ export function sendFailure(res: ServerResponse, error: unknown): void {
   sendJson(res, 500, { error: 'internal_error' });
 }
 
+/** Stops accepting connections on SIGTERM or SIGINT, then exits. */
+export function closeOnSignal(server: Server): void {
+  for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+    process.on(signal, () => {
+      server.close(() => process.exit(0));
+      // Do not let a stuck connection block shutdown.
+      setTimeout(() => process.exit(0), 3_000).unref();
+    });
+  }
+}
+
 /** Slow or oversized requests are cut off rather than held open. */
 export function harden(server: Server): Server {
   server.headersTimeout = 5_000;

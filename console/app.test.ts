@@ -53,6 +53,13 @@ describe('GET /api/engine', () => {
     });
   });
 
+  it('reads the engine once for every page asking at the same moment', async () => {
+    const app = await boot();
+    const replies = await Promise.all([1, 2, 3, 4, 5].map(() => app.call('GET', '/api/engine')));
+    for (const reply of replies) expect((await json(reply)).reachable).toBe(true);
+    expect(app.fake.requests.filter((line) => line === 'GET /info')).toHaveLength(1);
+  });
+
   it('counts only what a project scope lets the bridge see', async () => {
     const scope = loadConsoleConfig({ DOCKER_BRIDGE_PROJECTS: 'shop' }).bridge;
     const first = await boot({ selfId: null });
@@ -95,6 +102,13 @@ describe('GET /api/activity', () => {
     const [line] = app.audit;
     expect(JSON.parse(line ?? '{}')).toMatchObject({ level: 'audit', client: 'web console', tool: 'docker_safe_exec', target: 'web', detail: 'ls /etc', outcome: 'ok' });
     expect(line).not.toContain('ran ls');
+  });
+
+  it('does not record the page refreshing its own topology', async () => {
+    const app = await boot();
+    await tool(app, 'docker_get_stack_topology', { project: 'shop' });
+    expect(app.audit).toEqual([]);
+    expect((await json(await app.call('GET', '/api/activity'))).calls).toEqual([]);
   });
 
   it('works with no agent log mounted', async () => {

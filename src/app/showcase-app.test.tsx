@@ -8,12 +8,12 @@ import { MCP_CONFIG_JSON } from '@/features/setup/model/config-snippets';
 import { TOOL_NAMES } from '@bridge/core/tool-specs';
 import { useCountUp } from '@/shared/hooks/use-count-up';
 import { setReducedMotion } from '@/test/setup';
-import { App } from './app';
+import { ShowcaseApp } from './showcase-app';
 import { DocsApp } from './docs-app';
 
-describe('App', () => {
+describe('ShowcaseApp', () => {
   it('renders the status bar, hero and every section', () => {
-    render(<App />);
+    render(<ShowcaseApp />);
     const system = within(screen.getByRole('region', { name: 'System status' }));
     expect(system.getByText(/MCP Server: ACTIVE/)).toHaveTextContent('(stdio: /var/run/docker.sock)');
     expect(system.getByText('Protocol: MCP v1.0')).toBeInTheDocument();
@@ -29,7 +29,7 @@ describe('App', () => {
 
   it('starts the 502 diagnostic from "Try Live Simulation"', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    render(<ShowcaseApp />);
     const cta = screen.getByRole('link', { name: /Try Live Simulation/ });
     expect(cta).toHaveAttribute('href', '#simulator');
     await user.click(cta);
@@ -38,7 +38,7 @@ describe('App', () => {
 
   it('copies the MCP config from the hero and links to the architecture', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    render(<ShowcaseApp />);
     await user.click(screen.getByRole('button', { name: 'Copy MCP Config' }));
     expect(await navigator.clipboard.readText()).toBe(MCP_CONFIG_JSON);
     expect(await screen.findByRole('button', { name: 'Config copied' })).toBeInTheDocument();

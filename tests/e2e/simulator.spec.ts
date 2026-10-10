@@ -2,7 +2,7 @@ import { card, expect, terminal, test } from './fixtures';
 
 test.describe('live simulator', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/showcase/');
   });
 
   test('starts with four healthy containers', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe('live simulator with reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 
   test('shows the full transcript immediately', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/showcase/');
     await page.getByRole('button', { name: 'Simulate Redis OOM Crash' }).click();
     await expect(terminal(page)).toContainText('Root cause: cache-redis has no maxmemory', { timeout: 2_000 });
     await expect(page.getByRole('button', { name: 'Skip to result' })).toBeDisabled();

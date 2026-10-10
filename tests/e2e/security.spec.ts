@@ -1,7 +1,7 @@
 import { test as plain } from '@playwright/test';
 import { expect, expectAccessible, test } from './fixtures';
 
-const PAGES = ['/', '/docs/', '/account/'];
+const PAGES = ['/', '/showcase/', '/docs/', '/account/'];
 
 test.describe('accessibility (axe)', () => {
   for (const path of PAGES) {
@@ -11,8 +11,8 @@ test.describe('accessibility (axe)', () => {
     });
   }
 
-  test('the dashboard stays accessible during an incident', async ({ page }) => {
-    await page.goto('/');
+  test('the showcase stays accessible during an incident', async ({ page }) => {
+    await page.goto('/showcase/');
     await page.getByRole('button', { name: 'Simulate Redis OOM Crash' }).click();
     await page.getByRole('button', { name: 'Skip to result' }).click();
     await page.getByRole('tab', { name: 'docker_safe_exec' }).click();
@@ -60,9 +60,15 @@ plain.describe('response headers and server hardening', () => {
     expect((await request.get('/auth/status')).headers()['cache-control']).toBe('no-store');
   });
 
-  plain('refuses write methods', async ({ request }) => {
+  plain('refuses write methods, except the one the console API takes', async ({ request }) => {
     for (const send of [request.post, request.put, request.delete, request.patch]) {
       expect((await send.call(request, '/')).status()).toBe(405);
+    }
+    for (const path of ['/api/engine', '/api/activity', '/api/tools/call/extra', '/api/tools']) {
+      expect((await request.post(path, { data: {} })).status(), path).toBe(405);
+    }
+    for (const send of [request.put, request.delete, request.patch]) {
+      expect((await send.call(request, '/api/tools/call')).status()).toBe(405);
     }
   });
 
