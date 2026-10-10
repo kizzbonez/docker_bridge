@@ -1,0 +1,42 @@
+# secsuite targets for this project. Run from the host, for example:
+#
+#   docker exec security-suite-worker-1 python -m secsuite \
+#     --targets /repos/docker_bridge/security/secsuite/targets.yml \
+#     scan --target dockerbridge-source --profile static
+#
+# The secsuite worker mounts this repository read-only at /repos/docker_bridge
+# and reaches host-published ports through host.docker.internal.
+
+targets:
+
+  # Source tree: SAST, dependency CVEs, committed secrets, IaC misconfiguration,
+  # plus the quality and architecture profiles.
+  dockerbridge-source:
+    kind: repo
+    source_path: /repos/docker_bridge
+    semgrep_config: auto
+
+  # The running site as an anonymous visitor sees it: the sign-in wall.
+  # Everything else must answer with a redirect to /login/.
+  dockerbridge-web:
+    kind: web
+    base_url: http://host.docker.internal:8742
+    sensitive_paths:
+      - /
+      - /docs/
+      - /account/
+      - /auth/account
+      - /assets/
+    e2e_paths:
+      - /login/
+    e2e_wait: networkidle
+    e2e_min_text: 80
+
+  # Built images, for OS and runtime package CVEs.
+  dockerbridge-image-web:
+    kind: image
+    image: dockerbridge-dashboard:local
+
+  dockerbridge-image-auth:
+    kind: image
+    image: dockerbridge-auth:local
