@@ -1,0 +1,132 @@
+/* Design tokens. Everything visual is derived from these. */
+@theme {
+  --font-display: 'Oxanium Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-sans: 'Instrument Sans Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  /* Carbon surfaces */
+  --color-carbon-950: #030712;
+  --color-carbon-900: #090d16;
+  --color-carbon-800: #0f172a;
+  --color-carbon-700: #17213a;
+  --color-carbon-600: #223050;
+
+  /* Text */
+  --color-ink: #e6edf7;
+  --color-ink-dim: #a9b8cc;
+  --color-ink-mute: #7c8ca5;
+
+  /* Signal accents (exact brand hexes, overriding Tailwind's OKLCH defaults) */
+  --color-cyan-300: #67e8f9;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-sky-300: #7dd3fc;
+  --color-sky-400: #38bdf8;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+
+  --animate-breathe: breathe 7s ease-in-out infinite;
+  --animate-radar: radar 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-caret: caret 1s steps(1, end) infinite;
+  --animate-flow: flow 1.1s linear infinite;
+  --animate-alarm: alarm 1.2s ease-in-out infinite;
+  --animate-packet-east: packet-east 3.2s linear infinite;
+  --animate-packet-west: packet-west 3.2s linear infinite;
+  --animate-rise: rise 0.45s ease-out both;
+
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.45;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes radar {
+    0% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    80%,
+    100% {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  @keyframes caret {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -16;
+    }
+  }
+
+  @keyframes alarm {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgb(239 68 68 / 0);
+    }
+    50% {
+      box-shadow: 0 0 26px 2px rgb(239 68 68 / 0.38);
+    }
+  }
+
+  @keyframes packet-east {
+    0% {
+      opacity: 0;
+      transform: translateX(0);
+    }
+    12%,
+    88% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(var(--span, 280px));
+    }
+  }
+
+  @keyframes packet-west {
+    0% {
+      opacity: 0;
+      transform: translateX(var(--span, 280px));
+    }
+    12%,
+    88% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

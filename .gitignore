@@ -1,0 +1,20 @@
+# Dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Test artefacts
+coverage/
+playwright-report/
+test-results/
+tests/e2e/.state/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Raw scanner output (the curated summary and CSV in security/reports are kept)
+security/reports/raw/
+
+.DS_Store

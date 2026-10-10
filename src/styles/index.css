@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+@import './theme.css';
+@import './base.css';
+@import './components.css';
+
+/* Explicit sources: the sign-in portal is built from its own Vite root, so
+   automatic detection alone would miss the classes used under src/. */
+@source '../';
+@source '../../portal';
