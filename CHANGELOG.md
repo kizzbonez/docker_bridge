@@ -15,6 +15,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Best-effort secret redaction on everything read from a container, and a per-line length cap in log output.
 - Cloudflare Tunnel support in nginx: the visitor address is taken from `CF-Connecting-IP`, so lockouts, rate
   limits and the audit log are per visitor.
+- Tests for the server: its Engine client against a fake engine on a real pipe, and the server itself over stdio.
+  The suite is now 307 unit and component tests and 123 end-to-end tests.
 
 ### Changed
 

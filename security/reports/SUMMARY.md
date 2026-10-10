@@ -1,8 +1,9 @@
 # Security scan summary
 
-**Scanned:** 2026-10-10 · **Version:** 0.1.0 · **Tooling:** local secsuite stack, plus `npm audit`
+**Scanned:** 2026-10-10 · **Version:** 0.2.0 · **Tooling:** local secsuite stack, plus `npm audit`
 
-Every profile below passes the gate (no finding at HIGH or above) after the fixes described here.
+Every profile below passes the gate (no finding at HIGH or above) after the fixes described here. All of them
+were run again for 0.2.0, which added the MCP server in `bridge/`; the scanners reported nothing new.
 The row-by-row record, including what the first scan found, is in [`findings.csv`](findings.csv).
 
 ## Result by scan
@@ -10,7 +11,7 @@ The row-by-row record, including what the first scan found, is in [`findings.csv
 | Scan | Scanners | First scan | After fixes |
 |---|---|---|---|
 | Source: static analysis | semgrep | 1 medium | **0** |
-| Source: dependencies | trivy (lockfile), `npm audit` (308 packages) | 0 | **0** |
+| Source: dependencies | trivy (lockfile), `npm audit` (314 packages) | 0 | **0** |
 | Source: committed secrets | gitleaks | 0 | **0** |
 | Source: infrastructure as code | checkov (Dockerfile, compose) | 0 | **0** |
 | Image: `dockerbridge-dashboard` | trivy | 1 medium | **0** |
@@ -35,6 +36,19 @@ The row-by-row record, including what the first scan found, is in [`findings.csv
    as exposed. Nothing was: it had followed the sign-in redirect and read the login page. The wall now answers
    an anonymous request for anything that looks like a file with a plain 404, and only page requests are sent
    to sign-in, so a probe learns nothing about what exists.
+
+## Found by review, not by a scanner
+
+Building the real server meant the exec policy would guard a real Docker socket, so it was reviewed by hand and
+exercised against a live engine. Three things turned up that no scanner had flagged:
+
+1. **`env` could launch anything.** It was on the allowlist as a way to read the environment, but
+   `env sh -c ...` runs an arbitrary program. `env` with arguments is now refused.
+2. **The first matching rule decided.** A command that matched a state-changing rule could pass in read-write
+   mode before a later deny rule was consulted. Every rule is now evaluated and a deny always wins.
+3. **A wrapper process outlived each exec.** Deadlines were enforced by wrapping the command in the container's
+   `timeout`, which left a defunct process behind every call. The bridge now enforces the deadline itself and
+   runs the command directly.
 
 ## What is accepted, and why
 
