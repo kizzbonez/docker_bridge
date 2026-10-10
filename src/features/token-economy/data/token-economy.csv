@@ -1,0 +1,9 @@
+# DockerBridge MCP - token economy benchmarks (ILLUSTRATIVE, simulated stack).
+# One debug cycle per incident: raw `docker logs` piped into the context window vs. the
+# docker_tail_filtered_logs tool. Token counts are estimates at ~4 characters per token.
+# These are showcase figures, not measurements of a production system.
+scenario_id,label,container,filter_pattern,raw_lines,raw_tokens,ansi_sequences,duplicate_lines,bridged_lines,bridged_tokens
+gateway-502,502 outage,web-gateway,"connect\(\) failed",800,18400,1600,512,1,320
+redis-oom,Redis OOM crash,cache-redis,"starting|saving|overcommit",1200,26900,0,870,4,290
+db-connection,DB connection test,db-postgres,FATAL,640,15100,0,388,2,345
+api-error-storm,API error storm,order-api,"ERROR",2000,47300,4000,1340,3,410
