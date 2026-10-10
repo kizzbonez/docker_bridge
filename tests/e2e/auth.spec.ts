@@ -71,6 +71,27 @@ test.describe('the sign-in wall', () => {
   });
 });
 
+test.describe('behind a Cloudflare tunnel', () => {
+  test('keys the lockout on the visitor Cloudflare reports, not on the tunnel', async ({ request }) => {
+    const guess = (ip: string) =>
+      request.post('/auth/login', { data: { username: 'tunnel-visitor', password: 'wrong-guess-xyz-123' }, headers: { 'CF-Connecting-IP': ip } });
+    for (let attempt = 0; attempt < 5; attempt += 1) expect((await guess('203.0.113.50')).status()).toBe(401);
+    expect((await guess('203.0.113.50')).status()).toBe(429);
+    // Another visitor through the same tunnel is not locked out with them.
+    expect((await guess('198.51.100.7')).status()).toBe(401);
+  });
+
+  test('marks the session cookie Secure when the visitor arrived over HTTPS', async ({ request }) => {
+    const admin = readAdmin();
+    const https = { 'X-Forwarded-Proto': 'https', 'CF-Connecting-IP': '203.0.113.60' };
+    const first = await request.post('/auth/login', { data: { username: admin.username, password: admin.password }, headers: https });
+    const { challenge } = (await first.json()) as { challenge: string };
+    const second = await request.post('/auth/login/verify', { data: { challenge, code: takeRecoveryCode() }, headers: https });
+    expect(second.status()).toBe(200);
+    expect(second.headers()['set-cookie']).toMatch(/^db_session=[\w-]+; Path=\/; HttpOnly; SameSite=Strict; Max-Age=\d+; Secure$/);
+  });
+});
+
 test.describe('signing in', () => {
   test('asks for a second factor, sets a hardened cookie and returns to the requested page', async ({ page, context }) => {
     await page.goto('/docs/');
