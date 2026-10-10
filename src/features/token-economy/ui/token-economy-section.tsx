@@ -62,7 +62,7 @@ export const TokenEconomySection = memo(function TokenEconomySection() {
           <CompareSlider rawLines={RAW_LOGS[benchmark.container].slice(-EXCERPT_LINES)} filtered={filtered} />
           <EconomyControls cycles={cycles} price={price} onCycles={setCycles} onPrice={setPrice} />
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <EconomyCard testId="economy-raw" tone="crit" title="Standard Claude CLI" subtitle="docker logs · raw bash" side={economy.raw} cycles={cycles} facts={rawFacts(benchmark)} />
+            <EconomyCard testId="economy-raw" tone="crit" title="Agent with a plain shell" subtitle="docker logs · raw bash" side={economy.raw} cycles={cycles} facts={rawFacts(benchmark)} />
             <EconomyCard testId="economy-bridged" tone="ok" title="With DockerBridge MCP" subtitle="docker_tail_filtered_logs" side={economy.bridged} cycles={cycles} facts={bridgedFacts(benchmark)} />
           </div>
           <ReductionBanner economy={economy} />

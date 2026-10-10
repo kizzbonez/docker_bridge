@@ -48,7 +48,7 @@ export function ArchitectureFlow() {
   return (
     <div className="flex flex-col items-stretch gap-2 lg:flex-row lg:items-center" data-testid="architecture-flow">
       <div className="lg:flex-1">
-        <Node kicker="Agent" name="Claude Code" points={['Plans the investigation', 'Calls tools, reads compact JSON', 'Drafts the fix as a diff']} />
+        <Node kicker="Agent" name="Any MCP client" points={['Plans the investigation', 'Calls tools, reads compact JSON', 'Drafts the fix as a diff']} />
       </div>
       <Hop transport="stdio" protocol="JSON-RPC 2.0" />
       <div className="lg:flex-[1.25]">

@@ -13,7 +13,7 @@ const STATUS: Record<PlaybackStatus, { label: string; tone: Tone; announce: stri
   resolved: { label: 'resolved', tone: 'ok', announce: 'Fix applied. The stack is healthy.' },
 };
 
-/** Left pane: the Claude Code CLI window. */
+/** Left pane: the agent's terminal window. */
 export function AgentTerminal({ simulator }: { simulator: Simulator }) {
   const { playback, status, steps } = simulator;
   const state = STATUS[status];
@@ -21,7 +21,7 @@ export function AgentTerminal({ simulator }: { simulator: Simulator }) {
     <GlassPanel>
       <div className="overflow-hidden rounded-xl">
         <WindowChrome
-          title="claude — ~/shop-stack"
+          title="agent — ~/shop-stack"
           aside={<span className={toneText[state.tone]}>● {state.label}</span>}
         />
         <TerminalOutput steps={steps} stepIndex={playback.stepIndex} chars={playback.chars} />

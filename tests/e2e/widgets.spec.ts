@@ -108,7 +108,16 @@ test.describe('setup', () => {
     await expect(config.getByRole('button', { name: 'Copied' })).toBeVisible();
     expect(JSON.parse(await page.evaluate(() => navigator.clipboard.readText()))).toHaveProperty('mcpServers');
 
-    await config.getByRole('tab', { name: 'claude mcp add' }).click();
+    await config.getByRole('tab', { name: 'Claude Code' }).click();
     await expect(config).toContainText('claude mcp add docker-debug-bridge');
+    await config.getByRole('tab', { name: 'VS Code' }).click();
+    await expect(config).toContainText('"servers"');
+    await config.getByRole('tab', { name: 'Codex CLI' }).click();
+    await expect(config).toContainText('[mcp_servers.docker-debug-bridge]');
+
+    // Whatever the client, the guide starts with cloning the repository.
+    const steps = page.locator('#setup ol h3');
+    await expect(steps.first()).toHaveText('Clone the repository');
+    await expect(page.locator('#setup')).toContainText('git clone https://github.com/kizzbonez/docker_bridge.git');
   });
 });

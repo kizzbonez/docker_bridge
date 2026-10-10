@@ -6,7 +6,7 @@ import { C, P } from '../ui/prose';
 
 export function Configuration() {
   return (
-    <DocSection id="configuration" lead="Three optional environment variables, set in the env block of the server entry.">
+    <DocSection id="configuration" lead="Optional environment variables, set in the env block of the server entry.">
       <DataTable caption="Environment variables" columns={['Variable', 'Value', 'Purpose']} rows={ENV_VARS} />
       <Callout kind="warning" title="The Docker socket is root-equivalent">
         Anything that can write to the Docker socket can start a privileged container and take over the host. The
@@ -14,7 +14,7 @@ export function Configuration() {
         switch it off only where the agent genuinely needs the few state-changing commands the policy allows.
       </Callout>
       <P>
-        The server speaks MCP over stdio: Claude Code launches it as a child process and exchanges JSON-RPC 2.0
+        The server speaks MCP over stdio: the client launches it as a child process and exchanges JSON-RPC 2.0
         messages on stdin and stdout. It opens no network port.
       </P>
     </DocSection>

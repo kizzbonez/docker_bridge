@@ -36,11 +36,23 @@ const FAQS: Faq[] = [
     ),
   },
   {
-    question: 'The server does not appear under /mcp',
+    question: 'The server does not appear in my client',
     answer: (
       <>
-        Check that the JSON is valid and that the entry sits under <C>mcpServers</C>, then start a new session. Run{' '}
-        <C>claude mcp list</C> to see what Claude Code actually loaded and from which scope.
+        Clients load MCP servers when they start, so restart the client or open a new session first. Then check that
+        the JSON is valid, that the entry sits under <C>mcpServers</C>, and that the path points at{' '}
+        <C>bridge/index.ts</C> inside your clone. Each client has its own file: a server registered for one does not
+        appear in another. In Claude Code, <C>claude mcp list</C> shows what was loaded and from which scope.
+      </>
+    ),
+  },
+  {
+    question: 'Claude Desktop on Windows ignores my config file',
+    answer: (
+      <>
+        The Microsoft Store version keeps its config in a package folder, not in the usual <C>AppData/Roaming/Claude</C>.
+        Open it from inside the app (Settings → Developer → Edit Config), give the full path to <C>node.exe</C> as the
+        command, and quit the app from the system tray before reopening it.
       </>
     ),
   },
@@ -57,8 +69,9 @@ const FAQS: Faq[] = [
     question: 'Permission denied on /var/run/docker.sock',
     answer: (
       <>
-        The user running Claude Code needs access to the Docker socket: membership of the <C>docker</C> group on Linux,
-        or a running Docker Desktop. Point <C>DOCKER_SOCKET_PATH</C> elsewhere if your engine uses another socket.
+        The user running the MCP client needs access to the Docker socket: membership of the <C>docker</C> group on
+        Linux, or a running Docker Desktop. Point <C>DOCKER_SOCKET_PATH</C> elsewhere if your engine uses another
+        socket. For the console container on Linux, set <C>DOCKER_SOCKET_GID</C> to the gid of the <C>docker</C> group.
       </>
     ),
   },
@@ -82,11 +95,21 @@ const FAQS: Faq[] = [
     ),
   },
   {
-    question: 'Are the numbers on the dashboard real?',
+    question: 'Which numbers are real?',
     answer: (
       <>
-        No. They are illustrative figures from a simulated stack, and token counts are estimates at about four
-        characters per token. Measure your own workload before quoting savings.
+        Everything on the console is real: it is read from your engine and from the activity log. The showcase is
+        not: its figures are illustrative and come from a simulated stack. In both, token counts are estimates at
+        about four characters per token.
+      </>
+    ),
+  },
+  {
+    question: 'The console says the engine is not answering',
+    answer: (
+      <>
+        Check that Docker is running, then <C>docker compose logs console</C>. A permission error on Linux means{' '}
+        <C>DOCKER_SOCKET_GID</C> does not match the group that owns the socket.
       </>
     ),
   },

@@ -34,7 +34,7 @@ function Packets() {
 function Labels() {
   return (
     <g textAnchor="middle">
-      <text x={TOWER_LEFT} y="32" className={LABEL}>CLAUDE CODE</text>
+      <text x={TOWER_LEFT} y="32" className={LABEL}>MCP CLIENT</text>
       <text x={TOWER_LEFT} y="46" className={SUBLABEL}>AGENT · STDIO</text>
       <text x={TOWER_RIGHT} y="32" className={LABEL}>DOCKER ENGINE</text>
       <text x={TOWER_RIGHT} y="46" className={SUBLABEL}>UNIX SOCKET</text>
@@ -50,7 +50,7 @@ export function BridgeVisual() {
     <svg
       viewBox="0 0 520 300"
       role="img"
-      aria-label="Diagram: Claude Code and Docker Engine connected by the DockerBridge MCP server"
+      aria-label="Diagram: an MCP client and the Docker Engine connected by the DockerBridge MCP server"
       className="h-auto w-full"
     >
       <Structure />

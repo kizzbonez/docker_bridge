@@ -14,7 +14,7 @@ test.describe('showcase shell', () => {
     await expect(status.getByTestId('latency')).toHaveText(/^\d+ms$/);
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Autonomous Container Diagnostics for Agentic Workflows');
-    await expect(page.getByText('Token-efficient, safety-guarded Docker Engine debugging built specifically for Claude Code.')).toBeVisible();
+    await expect(page.getByText('Token-efficient, safety-guarded Docker Engine debugging for any MCP client: Claude Code, Cursor, Codex, VS Code and the rest.')).toBeVisible();
   });
 
   test('animates the hero counters up to their final values', async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe('showcase shell', () => {
   test('"Try Live Simulation" jumps to the simulator and starts a diagnostic', async ({ page }) => {
     await page.getByRole('link', { name: 'Try Live Simulation' }).click();
     await expect(page).toHaveURL(/#simulator$/);
-    await expect(page.getByRole('heading', { name: 'Watch Claude Code debug a broken stack' })).toBeInViewport();
+    await expect(page.getByRole('heading', { name: 'Watch an agent debug a broken stack' })).toBeInViewport();
     await expect(card(page, 'web-gateway')).toHaveAttribute('data-health', 'degraded');
   });
 

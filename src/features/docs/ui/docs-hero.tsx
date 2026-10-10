@@ -1,10 +1,10 @@
 import { GlassPanel } from '@/shared/ui/glass-panel';
 
 const SHORTCUTS = [
-  { href: '#quick-start', kicker: '2 min', title: 'Quick start', body: 'Register the server with Claude Code.' },
+  { href: '#quick-start', kicker: '2 min', title: 'Quick start', body: 'Clone the repository, then register the server.' },
   { href: '#tools-reference', kicker: 'Reference', title: 'Three tools', body: 'Parameters, schemas and sample payloads.' },
   { href: '#guardrails', kicker: 'Safety', title: 'Guardrails', body: 'What is allowed, refused, and why.' },
-  { href: '#run-dashboard', kicker: 'Operate', title: 'Run this dashboard', body: 'Docker, tests and security scans.' },
+  { href: '#run-dashboard', kicker: 'Operate', title: 'Run the stack', body: 'Docker, tests and security scans.' },
 ];
 
 /** Page header with jump-off cards for the most common destinations. */
@@ -18,8 +18,8 @@ export function DocsHero() {
         Documentation
       </h1>
       <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-dim">
-        How the bridge is wired into Claude Code, what each tool accepts and returns, which commands the guardrails
-        refuse, and how to run and verify this dashboard.
+        How to connect an MCP client to the bridge, what each tool accepts and returns, which commands the guardrails
+        refuse, and how to run the live console.
       </p>
       <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {SHORTCUTS.map((shortcut) => (

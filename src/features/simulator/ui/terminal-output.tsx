@@ -6,7 +6,7 @@ function Banner() {
   return (
     <div className="mb-4 rounded-md border border-cyan-500/20 px-3 py-2 text-ink-dim">
       <p>
-        <span className="text-amber-400">✻</span> Claude Code <span className="text-ink-mute">· ~/shop-stack</span>
+        <span className="text-amber-400">✻</span> Agent session <span className="text-ink-mute">· ~/shop-stack</span>
       </p>
       <p className="text-ink-mute">
         MCP <span className="text-emerald-400">✔ docker-debug-bridge</span> · 3 tools · stdio
@@ -46,7 +46,7 @@ export function TerminalOutput({ steps, stepIndex, chars }: TerminalOutputProps)
       ref={pane}
       role="log"
       aria-live="off"
-      aria-label="Claude Code agent terminal output"
+      aria-label="Agent terminal output"
       tabIndex={0}
       data-testid="terminal-output"
       className="h-[30rem] space-y-3 overflow-y-auto bg-carbon-950/80 p-4 font-mono text-[12.5px] leading-relaxed"

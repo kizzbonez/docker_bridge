@@ -7,9 +7,9 @@ import { SNIPPETS, type SnippetId } from '../model/config-snippets';
 
 const TABS = SNIPPETS.map((snippet) => ({ id: snippet.id, label: snippet.label }));
 
-/** The copy-paste configuration, in the three places Claude Code can read it from. */
+/** The copy-paste configuration, one tab per kind of MCP client. */
 export function ConfigCard() {
-  const [active, setActive] = useState<SnippetId>('user');
+  const [active, setActive] = useState<SnippetId>('standard');
   const snippet = SNIPPETS.find((entry) => entry.id === active) ?? SNIPPETS[0];
   if (!snippet) return null;
 

@@ -24,7 +24,7 @@ export const ArchitectureSection = memo(function ArchitectureSection() {
       index="05"
       eyebrow="Architecture"
       title="One narrow bridge between the model and the daemon"
-      lead="Claude Code never touches the Docker socket. It speaks JSON-RPC to the bridge over stdio; the bridge decides what reaches the engine and how much comes back."
+      lead="The agent never touches the Docker socket. It speaks JSON-RPC to the bridge over stdio; the bridge decides what reaches the engine and how much comes back."
     >
       <ArchitectureFlow />
       <GuardrailGrid />

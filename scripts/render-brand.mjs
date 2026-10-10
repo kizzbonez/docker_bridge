@@ -64,7 +64,7 @@ const CARD_CSS = `
 
 const CARD = `${LOCKUP}
   <div><h1>Autonomous Container Diagnostics for <em>Agentic Workflows</em></h1></div>
-  <p>Token-efficient, safety-guarded Docker Engine debugging built specifically for Claude Code.</p>
+  <p>Token-efficient, safety-guarded Docker Engine debugging for any MCP client.</p>
   <footer>3 TOOLS · JSON-RPC 2.0 · READ-ONLY BY DEFAULT</footer>`;
 
 const browser = await chromium.launch();

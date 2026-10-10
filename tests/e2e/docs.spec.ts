@@ -47,7 +47,7 @@ test.describe('documentation page', () => {
   });
 
   test('code samples can be copied', async ({ page }) => {
-    const sample = page.locator('figure', { hasText: '~/.claude.json' }).first();
+    const sample = page.locator('figure', { hasText: 'mcpServers block' }).first();
     await sample.getByRole('button', { name: 'Copy' }).click();
     await expect(sample.getByRole('button', { name: 'Copied' })).toBeVisible();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('"docker-debug-bridge"');
@@ -71,6 +71,16 @@ test.describe('documentation page', () => {
   test('never scrolls sideways', async ({ page }) => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test('puts cloning the repository first in the setup guide, for any client', async ({ page }) => {
+    const guide = page.locator('#quick-start');
+    await expect(guide.getByRole('heading', { level: 3 }).first()).toHaveText('1. Clone the repository');
+    await expect(guide).toContainText('git clone https://github.com/kizzbonez/docker_bridge.git');
+    const clients = guide.getByRole('table', { name: 'Where each client keeps its MCP servers' });
+    for (const client of ['Claude Code', 'Claude Desktop', 'Cursor', 'Windsurf', 'Gemini CLI', 'VS Code', 'Codex CLI']) {
+      await expect(clients.getByRole('rowheader', { name: client, exact: true })).toBeVisible();
+    }
   });
 
   test('shows the real engine in its status bar, and links back to the console', async ({ page }) => {

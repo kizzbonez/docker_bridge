@@ -36,7 +36,7 @@ export const Hero = memo(function Hero({ onTryLive }: HeroProps) {
           Autonomous Container Diagnostics for <span className="text-sky-400">Agentic Workflows</span>
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-dim">
-          Token-efficient, safety-guarded Docker Engine debugging built specifically for Claude Code.
+          Token-efficient, safety-guarded Docker Engine debugging for any MCP client: Claude Code, Cursor, Codex, VS Code and the rest.
         </p>
         <HeroActions onTryLive={onTryLive} />
       </div>
