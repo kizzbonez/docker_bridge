@@ -15,15 +15,16 @@ export function QuickStart() {
     <DocSection id="quick-start" lead="Register the server, confirm Claude Code can see it, then ask a question.">
       <H3>1. Add the server</H3>
       <P>
-        Paste the block below into <C>~/.claude.json</C> to make the server available everywhere, or save it as{' '}
-        <C>.mcp.json</C> at a repository root to share it with everyone who works in that project.
+        The server lives in this repository under <C>bridge/</C> and runs straight from source with Node 22.18 or
+        newer: there is nothing to build or install. Clone the repository, then paste the block below into{' '}
+        <C>~/.claude.json</C>, replacing the path with where the clone lives.
       </P>
-      <CodeSample title="~/.claude.json  ·  .mcp.json" language="json" text={MCP_CONFIG_JSON} />
+      <CodeSample title="~/.claude.json" language="json" text={MCP_CONFIG_JSON} />
       <P>Prefer a terminal? This registers the same server without editing JSON:</P>
       <CodeSample title="shell" text={CLI_COMMAND} />
       <Callout title="Scopes">
-        <C>claude mcp add</C> saves to the local scope by default. Pass <C>--scope user</C> for all your projects or{' '}
-        <C>--scope project</C> to write <C>.mcp.json</C>.
+        <C>--scope user</C> makes the server available in every project. To offer it to a team instead, commit the
+        same block as <C>.mcp.json</C> at the root of the project they share.
       </Callout>
 
       <H3>2. Verify the connection</H3>

@@ -31,10 +31,10 @@ export function Overview() {
       </P>
       <P>DockerBridge replaces those commands with three purpose-built tools:</P>
       <ToolCards />
-      <Callout title="What is simulated here">
-        This site is a showcase. The container stack, logs, metrics and tool responses are generated in your browser by
-        a mock of the server contract documented below; no Docker socket is contacted. The package name{' '}
-        <C>@your-handle/docker-debug-mcp</C> in the samples is a placeholder for your own published server.
+      <Callout title="What is simulated here, and what is real">
+        The server is real: it lives in <C>bridge/</C> and talks to your local Docker Engine. This site is its
+        showcase, and what it displays is simulated: the container stack, logs and metrics are fixtures run through
+        the server&apos;s own log pipeline and exec policy, in your browser. The site never contacts a Docker socket.
       </Callout>
     </DocSection>
   );

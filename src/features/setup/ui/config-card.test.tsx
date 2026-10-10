@@ -2,12 +2,20 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { writeClipboard } from '@/shared/lib/clipboard';
-import { CLI_COMMAND, MCP_CONFIG_JSON, SNIPPETS } from '../model/config-snippets';
+import { CLI_COMMAND, MCP_CONFIG_JSON, PUBLISHED_CONFIG_JSON, SNIPPETS } from '../model/config-snippets';
 import { ConfigCard } from './config-card';
 
 describe('config snippets', () => {
-  it('is valid JSON matching the documented server entry', () => {
+  it('runs the server from the repository, read-only', () => {
     expect(JSON.parse(MCP_CONFIG_JSON)).toEqual({
+      mcpServers: {
+        'docker-debug-bridge': { command: 'node', args: ['/path/to/docker_bridge/bridge/index.ts'], env: { READ_ONLY_MODE: 'true' } },
+      },
+    });
+  });
+
+  it('keeps the published form from the brief as an option', () => {
+    expect(JSON.parse(PUBLISHED_CONFIG_JSON)).toEqual({
       mcpServers: {
         'docker-debug-bridge': {
           command: 'npx',
@@ -19,10 +27,10 @@ describe('config snippets', () => {
   });
 
   it('registers the same server from the CLI', () => {
-    expect(CLI_COMMAND).toContain('claude mcp add docker-debug-bridge');
-    expect(CLI_COMMAND).toContain('-e READ_ONLY_MODE=false');
-    expect(CLI_COMMAND).toMatch(/-- npx -y @your-handle\/docker-debug-mcp$/);
-    expect(SNIPPETS.map((snippet) => snippet.label)).toEqual(['~/.claude.json', '.mcp.json', 'claude mcp add']);
+    expect(CLI_COMMAND).toContain('claude mcp add docker-debug-bridge --scope user');
+    expect(CLI_COMMAND).toContain('-e READ_ONLY_MODE=true');
+    expect(CLI_COMMAND).toMatch(/-- node \/path\/to\/docker_bridge\/bridge\/index\.ts$/);
+    expect(SNIPPETS.map((snippet) => snippet.label)).toEqual(['~/.claude.json', '.mcp.json', 'claude mcp add', 'npx']);
   });
 });
 

@@ -6,12 +6,12 @@ import { C, P } from '../ui/prose';
 
 export function Configuration() {
   return (
-    <DocSection id="configuration" lead="Two environment variables, set in the env block of the server entry.">
+    <DocSection id="configuration" lead="Three optional environment variables, set in the env block of the server entry.">
       <DataTable caption="Environment variables" columns={['Variable', 'Value', 'Purpose']} rows={ENV_VARS} />
       <Callout kind="warning" title="The Docker socket is root-equivalent">
-        Anything that can write to <C>/var/run/docker.sock</C> can start a privileged container and take over the host.
-        Start with <C>READ_ONLY_MODE</C> set to <C>"true"</C>, and switch it off only for projects where the agent
-        genuinely needs to change runtime state.
+        Anything that can write to the Docker socket can start a privileged container and take over the host. The
+        bridge never does: it has no tool that creates, stops or removes anything. Keep <C>READ_ONLY_MODE</C> on, and
+        switch it off only where the agent genuinely needs the few state-changing commands the policy allows.
       </Callout>
       <P>
         The server speaks MCP over stdio: Claude Code launches it as a child process and exchanges JSON-RPC 2.0

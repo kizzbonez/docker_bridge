@@ -2,11 +2,20 @@
 export const DASHBOARD_URL = 'http://127.0.0.1:8742';
 
 export const ENV_VARS: string[][] = [
-  ['DOCKER_SOCKET_PATH', '/var/run/docker.sock', 'Unix socket of the Docker Engine the bridge talks to.'],
   [
     'READ_ONLY_MODE',
-    '"false" in the sample config',
-    'When "true", docker_safe_exec refuses every command that changes runtime state. Recommended starting point.',
+    'on',
+    'docker_safe_exec refuses every command that changes runtime state. Only the exact value "false" (or 0, no, off) turns it off.',
+  ],
+  [
+    'DOCKER_SOCKET_PATH',
+    '/var/run/docker.sock, or //./pipe/docker_engine on Windows',
+    'Unix socket or named pipe of the local Docker Engine. Remote engines are not supported.',
+  ],
+  [
+    'DOCKER_BRIDGE_PROJECTS',
+    'unset: every container',
+    'Comma-separated compose projects. When set, no tool can see or touch a container outside them.',
   ],
 ];
 
@@ -39,6 +48,7 @@ export const PROJECT_TREE = `docker_bridge/
 ├─ account/index.html         account & security entry ┘
 ├─ portal/                    sign-in + onboarding (the only public bundle)
 ├─ auth/                      sign-in service: Node, no dependencies
+├─ bridge/                    the MCP server: core (shared), docker, tools, mcp
 ├─ src/
 │  ├─ app/                    page shells (dashboard, docs)
 │  ├─ features/               one folder per section: model/ + ui/
@@ -47,7 +57,7 @@ export const PROJECT_TREE = `docker_bridge/
 │  │  ├─ tool-playground/     live JSON-RPC request/response per tool
 │  │  ├─ auth/ account/       portal, onboarding wizard, account page
 │  │  └─ docs/                this page
-│  ├─ mock-bridge/            the simulated MCP server (pure TypeScript)
+│  ├─ mock-bridge/            the simulation: fixtures fed through bridge/core
 │  ├─ shared/                 ui primitives, hooks, lib
 │  └─ styles/                 design tokens and component layers
 ├─ public/brand/              logo, favicon, social image

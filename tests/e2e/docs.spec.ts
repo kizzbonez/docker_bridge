@@ -39,7 +39,7 @@ test.describe('documentation page', () => {
   test('renders the tool reference from the schemas', async ({ page }) => {
     const logs = page.getByTestId('tool-ref-docker_tail_filtered_logs');
     await expect(logs.getByRole('rowheader', { name: 'filter_pattern' })).toBeVisible();
-    await expect(logs.getByRole('table')).toContainText('64–1024 · default 320');
+    await expect(logs.getByRole('table')).toContainText('64–4096 · default 320');
     await expect(logs.getByLabel('request · tools/call')).toContainText('"name": "docker_tail_filtered_logs"');
     await expect(page.getByTestId('allowed-binaries')).toContainText('pg_isready');
     await expect(page.getByRole('table', { name: 'Exec policy rules' })).toContainText('nginx -s reload');

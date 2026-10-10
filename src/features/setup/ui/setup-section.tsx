@@ -1,7 +1,7 @@
 import { memo, type ReactNode } from 'react';
 import { LinkButton } from '@/shared/ui/button';
 import { Section } from '@/shared/ui/section';
-import { PACKAGE_NAME } from '../model/config-snippets';
+import { REPO_PATH } from '../model/config-snippets';
 import { ConfigCard } from './config-card';
 
 const CODE = 'rounded bg-carbon-700/70 px-1.5 py-0.5 font-mono text-[0.85em] break-words text-cyan-300';
@@ -33,18 +33,17 @@ export const SetupSection = memo(function SetupSection() {
       index="06"
       eyebrow="One-click setup"
       title="Wire it into Claude Code"
-      lead="One JSON block. Paste it, restart the session, and the three tools show up under /mcp."
+      lead="The server runs straight from this repository with Node: nothing to build or install. Register it, restart the session, and the three tools show up under /mcp."
     >
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <ol className="min-w-0 space-y-6">
           <Step n={1} title="Add the server">
-            Copy the block into <code className={CODE}>~/.claude.json</code>, or commit it as{' '}
-            <code className={CODE}>.mcp.json</code>. Replace <code className={CODE}>{PACKAGE_NAME}</code> with your
-            published package name.
+            Clone this repository, then copy the block into <code className={CODE}>~/.claude.json</code>, replacing{' '}
+            <code className={CODE}>{REPO_PATH}</code> with its location. It needs Node 22.18 or newer.
           </Step>
           <Step n={2} title="Decide how much it may do">
-            Set <code className={CODE}>READ_ONLY_MODE</code> to <code className={CODE}>"true"</code> to refuse every
-            state-changing command. The Docker socket is root-equivalent: start read-only.
+            Leave <code className={CODE}>READ_ONLY_MODE</code> on and every state-changing command is refused. Add{' '}
+            <code className={CODE}>DOCKER_BRIDGE_PROJECTS</code> to limit it to the compose projects you name.
           </Step>
           <Step n={3} title="Ask a real question">
             Run <code className={CODE}>/mcp</code> to confirm the connection, then try: “orders return 502 since the

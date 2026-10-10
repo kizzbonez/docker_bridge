@@ -42,8 +42,9 @@ test.describe('dashboard shell', () => {
     await page.getByRole('button', { name: 'Copy MCP Config' }).click();
     await expect(page.getByRole('button', { name: 'Config copied' })).toBeVisible();
     const copied = JSON.parse(await page.evaluate(() => navigator.clipboard.readText()));
-    expect(copied.mcpServers['docker-debug-bridge'].args).toEqual(['-y', '@your-handle/docker-debug-mcp']);
-    expect(copied.mcpServers['docker-debug-bridge'].env.DOCKER_SOCKET_PATH).toBe('/var/run/docker.sock');
+    expect(copied.mcpServers['docker-debug-bridge'].command).toBe('node');
+    expect(copied.mcpServers['docker-debug-bridge'].args[0]).toMatch(/bridge\/index\.ts$/);
+    expect(copied.mcpServers['docker-debug-bridge'].env.READ_ONLY_MODE).toBe('true');
   });
 
   test('"View Architecture" scrolls to the architecture section', async ({ page }) => {

@@ -65,14 +65,35 @@ function Recovery() {
         restarts onboarding with a new token; it needs shell access to the server, which is the point.
       </P>
       <CodeSample title="shell" text={RESET} />
-      <Callout kind="warning" title="Behind a proxy or tunnel">
-        Serve the site over HTTPS so the session cookie is marked <C>Secure</C>. Lockouts are keyed on the client
-        address nginx sees: behind a proxy, configure <C>real_ip_header</C> in <C>docker/nginx/default.conf</C> so that
-        is the visitor, not the proxy.
+      <H3>Publishing through Cloudflare Tunnel</H3>
+      <P>
+        Leave the port bound to <C>127.0.0.1</C> and point a public hostname of your tunnel at{' '}
+        <C>http://host.docker.internal:8742</C> (or <C>http://localhost:8742</C> when cloudflared runs on the host).
+        Nothing else changes:
+      </P>
+      <Bullets items={TUNNEL_NOTES} />
+      <Callout kind="warning" title="Any other reverse proxy">
+        The visitor address is read from <C>CF-Connecting-IP</C>. Behind a different proxy, change{' '}
+        <C>real_ip_header</C> in <C>docker/nginx/default.conf</C> to the header that proxy sets, or every visitor will
+        share one lockout.
       </Callout>
     </>
   );
 }
+
+const TUNNEL_NOTES = [
+  <>
+    The session cookie is marked <C>Secure</C> automatically, because the tunnel reports that the visitor arrived over
+    HTTPS.
+  </>,
+  <>
+    Lockouts, rate limits and the activity log use the visitor address Cloudflare reports, not the tunnel&apos;s.
+  </>,
+  <>
+    Leave Rocket Loader and automatic Web Analytics injection off for this hostname: they add scripts that the
+    site&apos;s Content-Security-Policy refuses.
+  </>,
+];
 
 const MANAGING = [
   <>
