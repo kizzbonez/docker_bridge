@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t">
+  <title id="t">DockerBridge MCP</title>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#090d16" stroke="#06b6d4" stroke-width="2"/>
+  <path d="M20 14v36M44 14v36" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M8 31 20 17Q32 41 44 17L56 31" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 26v16M32 29v13M38 26v16" fill="none" stroke="#38bdf8" stroke-opacity=".7" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M8 42h48" fill="none" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="32" cy="42" r="3.5" fill="#34d399"/>
+</svg>
