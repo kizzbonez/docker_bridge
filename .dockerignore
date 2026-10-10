@@ -1,0 +1,21 @@
+node_modules
+dist
+coverage
+playwright-report
+test-results
+tests
+security
+scripts
+.git
+.gitignore
+.env
+.env.*
+*.md
+docker-compose*.yml
+Dockerfile
+# Tests never ship in an image.
+playwright.config.ts
+**/*.test.ts
+**/*.test.tsx
+auth/test-harness.ts
+src/test

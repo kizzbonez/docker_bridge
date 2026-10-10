@@ -1,0 +1,92 @@
+# DockerBridge dashboard — a static showcase behind a two-factor sign-in wall.
+#
+#   docker compose up -d --build     # build and start
+#   docker compose logs auth         # first start: read the one-time setup token
+#   open http://127.0.0.1:8742       # onboarding wizard, then the dashboard
+#   docker compose down              # stop (add -v to also delete the account)
+#
+# The port binds to 127.0.0.1 only: reachable from this machine, not the LAN.
+# To publish it, front it with a reverse proxy or tunnel; do not change the bind.
+#
+# Despite the product's name, nothing here mounts the Docker socket. Everything
+# the dashboard shows is simulated in the browser.
+name: docker-bridge
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  pids_limit: 64
+  restart: unless-stopped
+
+services:
+  dashboard:
+    <<: *hardening
+    build:
+      context: .
+      target: web
+    image: dockerbridge-dashboard:local
+    depends_on:
+      auth:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${DASHBOARD_PORT:-8742}:8080"
+    networks:
+      - edge
+      - backend
+    user: "101:101"
+    tmpfs:
+      # nginx pid and temp files; the only writable path in the container.
+      - /tmp:size=16m,mode=1777,noexec,nosuid,nodev
+    mem_limit: 128m
+    cpus: 0.5
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Sign-in service. Publishes no port: only the dashboard container reaches it.
+  auth:
+    <<: *hardening
+    build:
+      context: .
+      target: auth
+    image: dockerbridge-auth:local
+    environment:
+      # Optional. Unset: a random one-time setup token is printed on first start.
+      AUTH_SETUP_TOKEN: ${AUTH_SETUP_TOKEN:-}
+      # auto: Secure cookies whenever the visitor arrives over HTTPS.
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-auto}
+      AUTH_SESSION_TTL_HOURS: ${AUTH_SESSION_TTL_HOURS:-12}
+      AUTH_SESSION_IDLE_MINUTES: ${AUTH_SESSION_IDLE_MINUTES:-120}
+      AUTH_MAX_FAILURES: ${AUTH_MAX_FAILURES:-5}
+      AUTH_LOCKOUT_MINUTES: ${AUTH_LOCKOUT_MINUTES:-15}
+    volumes:
+      # The administrator account: password hash, TOTP key, recovery-code hashes.
+      - auth-data:/data
+    networks:
+      - backend
+    user: "1000:1000"
+    # Password hashing (scrypt) needs ~32 MiB per sign-in on top of the runtime.
+    mem_limit: 192m
+    cpus: 1.0
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8081/auth/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  auth-data:
+
+networks:
+  # Carries the published port.
+  edge:
+  # dashboard <-> auth only. `internal` means no route to the outside world.
+  backend:
+    internal: true
