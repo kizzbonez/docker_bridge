@@ -1,0 +1,29 @@
+# File and folder naming, checked by the secsuite architecture profile (ls-lint).
+ls:
+  src:
+    .dir: kebab-case
+    .ts: kebab-case
+    .tsx: kebab-case
+    .test.ts: kebab-case
+    .test.tsx: kebab-case
+    .css: kebab-case
+    .csv: kebab-case
+  auth:
+    .ts: kebab-case
+    .test.ts: kebab-case
+  portal:
+    .dir: kebab-case
+    .tsx: kebab-case
+  tests:
+    .dir: kebab-case
+    .ts: kebab-case
+    .spec.ts: kebab-case
+    .setup.ts: kebab-case
+
+ignore:
+  - node_modules
+  - dist
+  - coverage
+  - playwright-report
+  - test-results
+  - tests/e2e/.state
