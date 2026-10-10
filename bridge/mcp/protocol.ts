@@ -1,5 +1,5 @@
-import { validateArgs } from '../core/validate-args.ts';
-import { InvalidParams, ToolError } from '../errors.ts';
+import { clientLabel } from '../activity/record.ts';
+import { callTool, type CallReport } from '../tools/call.ts';
 import type { Tool } from '../tools/registry.ts';
 
 /** Protocol revisions this server speaks, newest first. */
@@ -27,6 +27,14 @@ export interface ServerInfo {
 }
 
 export type Dispatch = (message: unknown) => Promise<JsonRpcResponse | null>;
+
+/** Told about every finished tool call, with the name the client gave itself. */
+export type Observer = (report: CallReport, client: string) => void;
+
+/** What one connection has told us about itself. */
+interface Session {
+  client: string;
+}
 
 /** Thrown inside a handler to answer with a JSON-RPC error. */
 class RpcError extends Error {
@@ -76,29 +84,29 @@ const toolResult = (structured: Record<string, unknown>, isError: boolean): unkn
   isError,
 });
 
-async function callTool(params: unknown, tools: Tool[]): Promise<unknown> {
+async function toolsCall(params: unknown, tools: Tool[], observe: (report: CallReport) => void): Promise<unknown> {
   if (!isObject(params) || typeof params.name !== 'string') throw new RpcError(INVALID_PARAMS, 'tools/call needs a tool name');
-  const tool = tools.find((candidate) => candidate.spec.name === params.name);
-  if (!tool) throw new RpcError(INVALID_PARAMS, `unknown tool: ${params.name}`);
-  const validated = validateArgs(tool.spec.inputSchema, params.arguments);
-  if (!validated.ok) throw new RpcError(INVALID_PARAMS, validated.message);
-
-  try {
-    const output = await tool.run(validated.args);
-    return toolResult(output.structured, output.isError);
-  } catch (error) {
-    if (error instanceof InvalidParams) throw new RpcError(INVALID_PARAMS, error.message);
-    // Expected failures go back as a result, so the model can read why and adapt.
-    if (error instanceof ToolError) return toolResult({ error: error.message }, true);
-    throw error;
-  }
+  const report = await callTool(tools, params.name, params.arguments);
+  observe(report);
+  if (report.outcome.kind === 'invalid') throw new RpcError(INVALID_PARAMS, report.outcome.message);
+  return toolResult(report.outcome.structured, report.outcome.isError);
 }
 
-async function handle(method: string, params: unknown, info: ServerInfo, tools: Tool[]): Promise<unknown> {
-  if (method === 'initialize') return initialize(params, info);
+interface Server {
+  info: ServerInfo;
+  tools: Tool[];
+  session: Session;
+  observe: Observer;
+}
+
+async function handle(method: string, params: unknown, server: Server): Promise<unknown> {
+  if (method === 'initialize') {
+    server.session.client = clientLabel(isObject(params) ? params.clientInfo : null);
+    return initialize(params, server.info);
+  }
   if (method === 'ping') return {};
-  if (method === 'tools/list') return listTools(tools);
-  if (method === 'tools/call') return callTool(params, tools);
+  if (method === 'tools/list') return listTools(server.tools);
+  if (method === 'tools/call') return toolsCall(params, server.tools, (report) => server.observe(report, server.session.client));
   throw new RpcError(METHOD_NOT_FOUND, `Method not found: ${method}`);
 }
 
@@ -106,7 +114,13 @@ async function handle(method: string, params: unknown, info: ServerInfo, tools: 
  * The MCP server as a function from one JSON-RPC message to one response.
  * Notifications (messages without an id) never get a reply.
  */
-export function createDispatcher(info: ServerInfo, tools: Tool[], log: (line: string) => void = () => undefined): Dispatch {
+export function createDispatcher(
+  info: ServerInfo,
+  tools: Tool[],
+  log: (line: string) => void = () => undefined,
+  observe: Observer = () => undefined,
+): Dispatch {
+  const server: Server = { info, tools, session: { client: 'unknown client' }, observe };
   return async (message) => {
     if (!isObject(message) || message.jsonrpc !== '2.0' || typeof message.method !== 'string') {
       return failure(null, INVALID_REQUEST, 'Invalid Request');
@@ -114,7 +128,7 @@ export function createDispatcher(info: ServerInfo, tools: Tool[], log: (line: st
     const isNotification = !('id' in message);
     const id = (message.id ?? null) as Id;
     try {
-      const result = await handle(message.method, message.params, info, tools);
+      const result = await handle(message.method, message.params, server);
       return isNotification ? null : { jsonrpc: '2.0', id, result };
     } catch (error) {
       if (isNotification) return null;

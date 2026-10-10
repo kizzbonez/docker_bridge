@@ -10,16 +10,18 @@
 //   READ_ONLY_MODE          "false" to allow state-changing exec commands (default: read-only)
 //   DOCKER_SOCKET_PATH      unix socket or named pipe (default: the platform's Docker socket)
 //   DOCKER_BRIDGE_PROJECTS  comma-separated compose projects to limit every tool to
+//   DOCKER_BRIDGE_ACTIVITY  "off" to stop recording tool calls (default: data/activity/ in this repository)
 //
 // stdout carries the protocol and nothing else. Diagnostics go to stderr.
+import { join } from 'node:path';
+import { activityDirFrom, createActivityLog } from './activity/log.ts';
+import { toRecord } from './activity/record.ts';
 import { loadConfig } from './config.ts';
 import { createEngine } from './docker/engine.ts';
 import { createDispatcher } from './mcp/protocol.ts';
 import { serveStdio } from './mcp/stdio.ts';
 import { createTools } from './tools/registry.ts';
-
-const NAME = 'docker-debug-bridge';
-const VERSION = '0.2.0';
+import { NAME, VERSION } from './version.ts';
 
 const INSTRUCTIONS = [
   'Debugs containers on the local Docker Engine with bounded, sanitised output.',
@@ -33,9 +35,16 @@ const log = (line: string): void => void process.stderr.write(`[${NAME}] ${line}
 const config = loadConfig(process.env);
 const engine = createEngine(config.socketPath, { timeoutMs: config.requestTimeoutMs, maxBytes: 4 * 1024 * 1024 });
 const tools = createTools({ engine, config });
-const dispatch = createDispatcher({ name: NAME, version: VERSION, instructions: INSTRUCTIONS }, tools, log);
+
+// Who called what, and how it went: read by the web console. Never the output.
+const activityDir = activityDirFrom(process.env, join(import.meta.dirname, '..', 'data', 'activity'));
+const activity = createActivityLog(activityDir);
+const dispatch = createDispatcher({ name: NAME, version: VERSION, instructions: INSTRUCTIONS }, tools, log, (report, client) =>
+  activity.append(toRecord(report, client, new Date())),
+);
 
 const scope = config.projects ? `projects: ${config.projects.join(', ')}` : 'all containers';
 log(`v${VERSION} ready · ${config.readOnly ? 'read-only' : 'READ_ONLY_MODE=false'} · ${scope} · ${config.socketPath}`);
 
 await serveStdio(dispatch, process.stdin, process.stdout);
+await activity.flush();

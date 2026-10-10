@@ -20,3 +20,4 @@ playwright.config.ts
 auth/test-harness.ts
 bridge/test-support
 src/test
+data

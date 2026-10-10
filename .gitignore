@@ -18,3 +18,6 @@ tests/e2e/.state/
 security/reports/raw/
 
 .DS_Store
+
+# The MCP server's record of tool calls (the folder itself is kept)
+data/activity/*.jsonl

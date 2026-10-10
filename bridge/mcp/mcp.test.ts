@@ -1,11 +1,16 @@
 // @vitest-environment node
 import { spawn } from 'node:child_process';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import { readActivity } from '../activity/log.ts';
 import { TOOL_NAMES, TOOL_SPECS } from '../core/tool-specs.ts';
 import { InvalidParams, ToolError } from '../errors.ts';
 import { containerId, startFakeEngine, type FakeEngine } from '../test-support/fake-engine.ts';
+import type { CallReport } from '../tools/call.ts';
 import type { Tool } from '../tools/registry.ts';
 import { PROTOCOL_VERSIONS, createDispatcher, type JsonRpcResponse } from './protocol.ts';
 import { serveStdio } from './stdio.ts';
@@ -80,6 +85,20 @@ describe('protocol', () => {
     expect(logged.join()).toContain('secret internal detail');
   });
 
+  it('tells the observer about every call, with the name the client gave itself', async () => {
+    const seen: Array<{ report: CallReport; client: string }> = [];
+    const dispatch = createDispatcher(INFO, stubTools(), undefined, (report, client) => seen.push({ report, client }));
+    const call = (args: unknown) => dispatch(request(2, 'tools/call', { name: 'docker_safe_exec', arguments: args }));
+
+    await call({ container: 'web', command: 'ls' });
+    await dispatch(request(1, 'initialize', { protocolVersion: PROTOCOL_VERSIONS[0], clientInfo: { name: `cursor${String.fromCharCode(7)}-vscode`, version: '1.9.2' } }));
+    await call({ container: 'web' });
+
+    expect(seen.map((entry) => entry.client)).toEqual(['unknown client', 'cursor-vscode 1.9.2']);
+    expect(seen[0]?.report).toMatchObject({ tool: 'docker_safe_exec', args: { container: 'web', command: 'ls' }, outcome: { kind: 'result', isError: false } });
+    expect(seen[1]?.report).toMatchObject({ args: null, outcome: { kind: 'invalid' } });
+  });
+
   it('answers ping, stays silent on notifications, and refuses everything else', async () => {
     const dispatch = createDispatcher(INFO, stubTools());
     expect(await dispatch(request(1, 'ping'))).toEqual({ jsonrpc: '2.0', id: 1, result: {} });
@@ -123,15 +142,21 @@ describe('stdio transport', () => {
 
 describe('the real server process', () => {
   let fake: FakeEngine;
-  afterEach(() => fake?.close());
+  let activityDir: string;
+  afterEach(async () => {
+    await fake?.close();
+    await rm(activityDir, { recursive: true, force: true });
+  });
 
-  /** Runs `node bridge/index.ts` exactly as Claude Code would, against a fake engine. */
+  /** Runs `node bridge/index.ts` exactly as an MCP client would, against a fake engine. */
   async function session(messages: unknown[], env: Record<string, string> = {}) {
+    // Its own activity folder, so a test run never writes into the repository's log.
+    activityDir = await mkdtemp(join(tmpdir(), 'dockerbridge-activity-'));
     fake = await startFakeEngine([
       { id: containerId('web'), name: 'shop-web-1', image: 'nginx:1.30', state: 'running', labels: { 'com.docker.compose.project': 'shop', 'com.docker.compose.service': 'web' }, log: ['[error] upstream refused', 'GET /healthz 200'], exec: () => ({ stdout: 'should never run\n' }) },
     ]);
     const entry = fileURLToPath(new URL('../index.ts', import.meta.url));
-    const child = spawn(process.execPath, [entry], { env: { ...process.env, DOCKER_SOCKET_PATH: fake.socketPath, READ_ONLY_MODE: '', ...env } });
+    const child = spawn(process.execPath, [entry], { env: { ...process.env, DOCKER_SOCKET_PATH: fake.socketPath, READ_ONLY_MODE: '', DOCKER_BRIDGE_ACTIVITY_DIR: activityDir, ...env } });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (chunk: Buffer) => (stdout += chunk.toString('utf8')));
@@ -157,6 +182,21 @@ describe('the real server process', () => {
     expect(byId.get(3)?.result).toMatchObject({ isError: false, structuredContent: { container: 'shop-web-1', matched_lines: 1 } });
     expect(byId.get(4)?.result).toMatchObject({ isError: true, structuredContent: { allowed: false } });
     expect(fake.execs).toEqual([]);
+
+    // Both calls are on record: who, what and how it went, but not what came back.
+    const recorded = await readActivity(activityDir, 10);
+    expect(recorded.map((record) => [record.client, record.tool, record.outcome])).toEqual(
+      expect.arrayContaining([
+        ['test 1', 'docker_tail_filtered_logs', 'ok'],
+        ['test 1', 'docker_safe_exec', 'refused'],
+      ]),
+    );
+    expect(JSON.stringify(recorded)).not.toContain('upstream refused');
+  }, 20_000);
+
+  it('records nothing when the activity log is switched off', async () => {
+    await session([request(1, 'tools/call', { name: 'docker_tail_filtered_logs', arguments: { container: 'web' } })], { DOCKER_BRIDGE_ACTIVITY: 'off' });
+    expect(await readActivity(activityDir, 10)).toEqual([]);
   }, 20_000);
 
   it('says so, as a tool result, when the engine cannot be reached', async () => {
